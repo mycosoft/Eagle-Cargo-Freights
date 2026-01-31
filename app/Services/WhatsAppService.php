@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Services\WhatsApp\WhatsAppProviderInterface;
 use App\Services\WhatsApp\MetaWhatsAppProvider;
 use App\Services\WhatsApp\LocalWhatsAppProvider;
+use App\Services\WhatsApp\EvolutionWhatsAppProvider;
+use App\Services\WhatsApp\WasenderWhatsAppProvider;
 use Illuminate\Support\Facades\Log;
 
 class WhatsAppService
@@ -15,25 +17,25 @@ class WhatsAppService
 
     public function __construct()
     {
-        $this->providerType = config('services.whatsapp.provider', 'meta');
+        $this->providerType = config('services.whatsapp.provider', 'evolution');
         
         // Initialize primary provider
         $this->provider = $this->createProvider($this->providerType);
         
         // Initialize fallback if using 'auto' mode
         if ($this->providerType === 'auto') {
-            // Auto mode: try Meta first, fallback to Local
-            $this->provider = $this->createProvider('meta');
-            $this->fallbackProvider = $this->createProvider('local');
+            // Auto mode: try WasenderAPI first (most reliable), fallback to Evolution, then Meta
+            $this->provider = $this->createProvider('wasender');
+            $this->fallbackProvider = $this->createProvider('evolution');
             
-            Log::info('[WhatsApp] Auto mode enabled: Meta primary, Local fallback');
+            Log::info('[WhatsApp] Auto mode enabled: WasenderAPI primary, Evolution fallback');
         }
     }
 
     /**
      * Create a provider instance based on type
      *
-     * @param string $type Provider type: 'meta', 'local'
+     * @param string $type Provider type: 'meta', 'local', 'evolution', 'wasender'
      * @return WhatsAppProviderInterface
      */
     protected function createProvider(string $type): WhatsAppProviderInterface
@@ -41,6 +43,10 @@ class WhatsAppService
         switch ($type) {
             case 'local':
                 return new LocalWhatsAppProvider();
+            case 'evolution':
+                return new EvolutionWhatsAppProvider();
+            case 'wasender':
+                return new WasenderWhatsAppProvider();
             case 'meta':
             default:
                 return new MetaWhatsAppProvider();
