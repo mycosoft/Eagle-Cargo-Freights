@@ -14,14 +14,14 @@ class TestWhatsAppProviders extends Command
      */
     protected $signature = 'whatsapp:test 
                             {phone? : Phone number to send test message (optional)}
-                            {--provider= : Force specific provider (meta/local/evolution)}';
+                            {--provider= : Force specific provider (meta/local)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Test WhatsApp providers (Meta Cloud API, Local API, and Evolution API)';
+    protected $description = 'Test WhatsApp providers (Meta Cloud API and Local API)';
 
     /**
      * Execute the console command.
@@ -36,12 +36,9 @@ class TestWhatsAppProviders extends Command
         $status = $whatsappService->getStatus();
         
         $this->table(
-            ['Type', 'Name', 'Available'],
+            ['Provider Type', 'Name', 'Available'],
             [
-                ['Primary', $status['primary']['name'], $status['primary']['available'] ? '✅ Yes' : '❌ No'],
-                isset($status['fallback']) 
-                    ? ['Fallback', $status['fallback']['name'], $status['fallback']['available'] ? '✅ Yes' : '❌ No']
-                    : ['Fallback', 'None', 'N/A']
+                [$status['provider'], $status['name'], $status['available'] ? '✅ Yes' : '❌ No'],
             ]
         );
         

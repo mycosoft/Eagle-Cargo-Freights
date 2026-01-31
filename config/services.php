@@ -36,8 +36,8 @@ return [
     ],
 
     'whatsapp' => [
-        // Provider selection: 'meta', 'local', 'evolution', 'wasender', or 'auto' (tries wasender first, falls back to evolution)
-        'provider' => env('WHATSAPP_PROVIDER', 'wasender'),
+        // Provider selection: 'meta' (official Cloud API) or 'local' (go-whatsapp-web-multidevice)
+        'provider' => env('WHATSAPP_PROVIDER', 'meta'),
         
         // Meta WhatsApp Cloud API configuration
         'meta' => [
@@ -51,20 +51,6 @@ return [
         'local' => [
             'api_url' => env('WHATSAPP_LOCAL_API_URL', 'http://localhost:3000'),
             'webhook_secret' => env('WHATSAPP_LOCAL_WEBHOOK_SECRET'),
-        ],
-        
-        // Evolution API configuration (deprecated, use WasenderAPI instead)
-        'evolution' => [
-            'api_url' => env('EVOLUTION_API_URL', 'http://147.93.85.45:8080'),
-            'api_key' => env('EVOLUTION_API_KEY', '429683C4C977415CAAFCCE10F7D57E11'),
-            'instance_name' => env('EVOLUTION_INSTANCE_NAME', 'Mycosoft Technologies'),
-        ],
-        
-        // WasenderAPI configuration
-        'wasender' => [
-            'api_url' => env('WASENDER_API_URL', 'https://wasenderapi.com/api'),
-            'api_key' => env('WASENDER_API_KEY'),
-            'sender' => env('WASENDER_SENDER'),
         ],
     ],
 
