@@ -100,6 +100,7 @@ class ShipmentBatch extends Model
 
     /**
      * Update batch status and cascade to all shipments
+     * WITH RATE LIMITING to prevent WhatsApp bans
      */
     public function updateBatchStatus($status, $location, $notes = null)
     {
@@ -109,7 +110,9 @@ class ShipmentBatch extends Model
         // Update all shipments in this batch
         $this->shipments()->update(['current_status' => $status]);
 
-        // Create status update records for each shipment (matching individual shipment pattern)
+        // Create status update records for each shipment with RATE-LIMITED notifications
+        $delaySeconds = 0;
+        
         foreach ($this->shipments as $shipment) {
             $statusUpdate = $shipment->statusUpdates()->create([
                 'status' => $status,
@@ -120,8 +123,14 @@ class ShipmentBatch extends Model
             // Load the client relationship
             $shipment->load('client');
 
-            // Dispatch the event for notifications (same as individual shipments)
-            event(new \App\Events\ShipmentStatusUpdatedEvent($shipment, $statusUpdate));
+            // Dispatch notification job with incremental delay
+            // This prevents rapid-fire messages that trigger WhatsApp spam detection
+            \App\Jobs\SendBatchShipmentNotificationJob::dispatch($shipment, $statusUpdate)
+                ->delay(now()->addSeconds($delaySeconds));
+            
+            // Increment delay by 3-5 seconds per message (randomized to appear natural)
+            // WhatsApp allows ~20 messages per minute safely
+            $delaySeconds += rand(3, 5);
         }
 
         return true;

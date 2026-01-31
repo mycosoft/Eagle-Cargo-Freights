@@ -32,7 +32,7 @@ class SendBulkNotificationsJob implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Execute the job with rate limiting to prevent WhatsApp bans.
      */
     public function handle(): void
     {
@@ -44,6 +44,9 @@ class SendBulkNotificationsJob implements ShouldQueue
         }
         
         $clients = $query->get();
+
+        // Rate limiting: Add delay between each message
+        $delaySeconds = 0;
 
         foreach ($clients as $client) {
             if ($this->channel === 'email' && $client->email) {
@@ -64,13 +67,21 @@ class SendBulkNotificationsJob implements ShouldQueue
                 Log::info("Sending Bulk SMS to {$client->phone}: {$this->message}");
             } elseif ($this->channel === 'whatsapp' && $client->phone) {
                 try {
-                    // Send WhatsApp notification
-                    $client->notify(new \App\Notifications\WhatsAppMessage($this->subject, $this->message));
-                    Log::info("Sending Bulk WhatsApp to {$client->phone}: {$this->message}");
+                    // Dispatch WhatsApp notification with delay to prevent ban
+                    \App\Jobs\SendDelayedWhatsAppJob::dispatch($client, $this->subject, $this->message)
+                        ->delay(now()->addSeconds($delaySeconds));
+                    
+                    Log::info("Scheduled Bulk WhatsApp to {$client->phone} with {$delaySeconds}s delay");
+                    
+                    // Increment delay by 3-5 seconds per message (randomized)
+                    $delaySeconds += rand(3, 5);
+                    
                 } catch (\Exception $e) {
-                    Log::error("Failed to send bulk WhatsApp to {$client->phone}: " . $e->getMessage());
+                    Log::error("Failed to schedule bulk WhatsApp to {$client->phone}: " . $e->getMessage());
                 }
             }
         }
+        
+        Log::info("Bulk notification completed. Total clients: " . $clients->count() . ", Channel: {$this->channel}");
     }
 }
