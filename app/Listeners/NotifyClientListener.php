@@ -3,10 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\ShipmentStatusUpdatedEvent;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Log;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\Log;
 
 class NotifyClientListener
 {
@@ -26,7 +24,7 @@ class NotifyClientListener
     public function handle(ShipmentStatusUpdatedEvent $event): void
     {
         Log::info("Processing notification for Tracking #{$event->shipment->tracking_number}");
-        
+
         if ($event->shipment->client) {
             $event->shipment->client->notify(new \App\Notifications\ShipmentStatusChanged($event->shipment, $event->statusUpdate));
         }

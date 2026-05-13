@@ -13,9 +13,10 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $defaultSettings = [
-            ['key' => 'site_email', 'value' => 'info@bryanzlogistics.com', 'type' => 'email'],
-            ['key' => 'site_phone', 'value' => '+1234567890', 'type' => 'text'],
-            ['key' => 'site_address', 'value' => '123 Main Street, City, Country', 'type' => 'text'],
+            ['key' => 'site_name', 'value' => 'Eagle Cargo Freights', 'type' => 'text'],
+            ['key' => 'site_email', 'value' => 'eaglecargofreights@gmail.com', 'type' => 'email'],
+            ['key' => 'site_phone', 'value' => 'UG +256 701 57941 / China +86 130 7021 8275', 'type' => 'text'],
+            ['key' => 'site_address', 'value' => 'Nabugabo BTC Building, Kampala', 'type' => 'text'],
             ['key' => 'smtp_host', 'value' => 'smtp.gmail.com', 'type' => 'text'],
             ['key' => 'smtp_port', 'value' => '587', 'type' => 'text'],
             ['key' => 'smtp_username', 'value' => '', 'type' => 'text'],

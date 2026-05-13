@@ -10,6 +10,7 @@ class BroadcastController extends Controller
     public function index()
     {
         $clients = \App\Models\Client::all();
+
         return view('broadcast.index', compact('clients'));
     }
 
@@ -28,8 +29,8 @@ class BroadcastController extends Controller
 
         // Dispatch job to handle bulk sending
         SendBulkNotificationsJob::dispatch(
-            $validated['subject'], 
-            $validated['message'], 
+            $validated['subject'],
+            $validated['message'],
             $validated['channel'],
             $clientIds
         );

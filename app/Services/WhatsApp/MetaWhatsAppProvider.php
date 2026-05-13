@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\Log;
 class MetaWhatsAppProvider implements WhatsAppProviderInterface
 {
     protected $accessToken;
+
     protected $phoneNumberId;
+
     protected $apiVersion;
+
     protected $baseUrl;
 
     public function __construct()
@@ -28,7 +31,7 @@ class MetaWhatsAppProvider implements WhatsAppProviderInterface
         try {
             // Remove any non-numeric characters except +
             $to = preg_replace('/[^0-9+]/', '', $to);
-            
+
             // Remove leading + if present
             $to = ltrim($to, '+');
 
@@ -40,43 +43,43 @@ class MetaWhatsAppProvider implements WhatsAppProviderInterface
                     'to' => $to,
                     'type' => 'text',
                     'text' => [
-                        'body' => $message
-                    ]
+                        'body' => $message,
+                    ],
                 ]);
 
             $responseData = $response->json();
 
             if ($response->successful()) {
                 Log::info("[Meta WhatsApp] Message sent successfully to {$to}", [
-                    'message_id' => $responseData['messages'][0]['id'] ?? null
+                    'message_id' => $responseData['messages'][0]['id'] ?? null,
                 ]);
 
                 return [
                     'success' => true,
                     'message_id' => $responseData['messages'][0]['id'] ?? null,
                     'provider' => 'meta',
-                    'data' => $responseData
+                    'data' => $responseData,
                 ];
             } else {
                 Log::error("[Meta WhatsApp] Failed to send message to {$to}", [
                     'status' => $response->status(),
-                    'response' => $responseData
+                    'response' => $responseData,
                 ]);
 
                 return [
                     'success' => false,
                     'error' => $responseData['error']['message'] ?? 'Unknown error',
                     'provider' => 'meta',
-                    'data' => $responseData
+                    'data' => $responseData,
                 ];
             }
         } catch (\Exception $e) {
-            Log::error("[Meta WhatsApp] Exception while sending message to {$to}: " . $e->getMessage());
+            Log::error("[Meta WhatsApp] Exception while sending message to {$to}: ".$e->getMessage());
 
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
-                'provider' => 'meta'
+                'provider' => 'meta',
             ];
         }
     }
@@ -100,39 +103,42 @@ class MetaWhatsAppProvider implements WhatsAppProviderInterface
                     'template' => [
                         'name' => $templateName,
                         'language' => [
-                            'code' => 'en_US'
+                            'code' => 'en_US',
                         ],
-                        'components' => $parameters
-                    ]
+                        'components' => $parameters,
+                    ],
                 ]);
 
             $responseData = $response->json();
 
             if ($response->successful()) {
                 Log::info("[Meta WhatsApp] Template sent successfully to {$to}");
+
                 return [
                     'success' => true,
                     'message_id' => $responseData['messages'][0]['id'] ?? null,
                     'provider' => 'meta',
-                    'data' => $responseData
+                    'data' => $responseData,
                 ];
             } else {
                 Log::error("[Meta WhatsApp] Failed to send template to {$to}", [
-                    'response' => $responseData
+                    'response' => $responseData,
                 ]);
+
                 return [
                     'success' => false,
                     'error' => $responseData['error']['message'] ?? 'Unknown error',
                     'provider' => 'meta',
-                    'data' => $responseData
+                    'data' => $responseData,
                 ];
             }
         } catch (\Exception $e) {
-            Log::error("[Meta WhatsApp] Exception while sending template to {$to}: " . $e->getMessage());
+            Log::error("[Meta WhatsApp] Exception while sending template to {$to}: ".$e->getMessage());
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
-                'provider' => 'meta'
+                'provider' => 'meta',
             ];
         }
     }
@@ -142,7 +148,7 @@ class MetaWhatsAppProvider implements WhatsAppProviderInterface
      */
     public function isAvailable(): bool
     {
-        return !empty($this->accessToken) && !empty($this->phoneNumberId);
+        return ! empty($this->accessToken) && ! empty($this->phoneNumberId);
     }
 
     /**

@@ -35,7 +35,7 @@ return new class extends Migration
                 'company_email',
                 'company_logo_path',
                 'invoice_terms',
-                'tax_rate'
+                'tax_rate',
             ]);
         });
     }

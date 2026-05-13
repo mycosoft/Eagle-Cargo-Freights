@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Client;
-use App\Models\User;
 use App\Models\Shipment;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class ShipmentEnhancementTest extends TestCase
 {
@@ -17,7 +17,7 @@ class ShipmentEnhancementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Clear permission cache
         $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 

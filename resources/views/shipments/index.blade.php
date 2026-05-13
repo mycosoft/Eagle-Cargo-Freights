@@ -8,9 +8,11 @@
             <h1>Shipments</h1>
         </div>
         <div class="col-sm-6">
+            @can('create shipments')
             <a href="{{ route('admin.shipments.create') }}" class="btn btn-primary float-right">
                 <i class="fas fa-plus"></i> Create Shipment
             </a>
+            @endcan
         </div>
     </div>
 @stop
@@ -106,16 +108,20 @@
                                     <a href="{{ route('admin.shipments.show', $shipment) }}" class="btn btn-sm btn-info" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @can('edit shipments')
                                     <a href="{{ route('admin.shipments.edit', $shipment) }}" class="btn btn-sm btn-warning" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('admin.shipments.destroy', $shipment) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Delete this shipment?');">
+                                    @endcan
+                                    @can('delete shipments')
+                                    <form action="{{ route('admin.shipments.destroy', $shipment) }}" method="POST" style="display:inline-block;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
@@ -133,13 +139,36 @@
     </div>
 @stop
 
-
+@section('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
+@stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
 

@@ -104,10 +104,10 @@
 <body>
     <!-- Professional Header -->
     <div class="header">
-        <img src="{{ public_path('images/logo.png') }}" alt="Bryanz Logistics" class="logo">
+        <img src="{{ public_path('images/logo.jpeg') }}" alt="Eagle Cargo Freights" class="logo">
         <div class="company-details">
-            Ttowa Mall Building, Room C102, Opposite CPS Kampala<br>
-            Tel: 0755 729 943 / 0743 507 702 | Email: bryanlogistics256@gmail.com
+            Nabugabo BTC Building, Kampala<br>
+            Tel: UG +256 701 57941 / China +86 130 7021 8275 | Email: eaglecargofreights@gmail.com
         </div>
         <div class="document-title">Packing List - Sea Cargo</div>
     </div>
@@ -187,7 +187,7 @@
     </div>
 
     <div class="footer">
-        <p>© {{ date('Y') }} Bryanz Logistics. All rights reserved.</p>
+        <p>© {{ date('Y') }} Eagle Cargo Freights. All rights reserved.</p>
         <p>This is a computer-generated document. No signature is required.</p>
     </div>
 </body>

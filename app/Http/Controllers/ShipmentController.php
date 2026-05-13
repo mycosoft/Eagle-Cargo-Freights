@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Shipment;
-use App\Models\Client;
 use App\Http\Requests\StoreShipmentRequest;
 use App\Http\Requests\UpdateShipmentRequest;
+use App\Models\Client;
+use App\Models\Shipment;
 use Illuminate\Http\Request;
 
 class ShipmentController extends Controller
@@ -29,16 +29,16 @@ class ShipmentController extends Controller
 
         // Search by tracking number
         if ($request->has('tracking_number') && $request->tracking_number != '') {
-            $query->where('tracking_number', 'like', '%' . $request->tracking_number . '%');
+            $query->where('tracking_number', 'like', '%'.$request->tracking_number.'%');
         }
 
         // General search
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('tracking_number', 'like', "%{$search}%")
-                  ->orWhere('origin', 'like', "%{$search}%")
-                  ->orWhere('destination', 'like', "%{$search}%");
+                    ->orWhere('origin', 'like', "%{$search}%")
+                    ->orWhere('destination', 'like', "%{$search}%");
             });
         }
 
@@ -54,6 +54,7 @@ class ShipmentController extends Controller
     public function create()
     {
         $clients = Client::orderBy('name')->get();
+
         return view('shipments.create', compact('clients'));
     }
 
@@ -62,7 +63,31 @@ class ShipmentController extends Controller
      */
     public function store(StoreShipmentRequest $request)
     {
-        $shipment = Shipment::create($request->validated());
+        $data = $request->validated();
+
+        // Auto-generate tracking number if not provided
+        if (empty($data['tracking_number'])) {
+            $data['tracking_number'] = Shipment::generateTrackingNumber();
+        }
+
+        $shipment = Shipment::create($data);
+
+        // Create packages if provided
+        if ($request->has('packages') && is_array($request->packages)) {
+            foreach ($request->packages as $index => $package) {
+                if (! empty($package['description']) || ! empty($package['weight'])) {
+                    $shipment->packages()->create([
+                        'description' => $package['description'] ?? null,
+                        'quantity' => $package['quantity'] ?? 1,
+                        'length' => $package['length'] ?? null,
+                        'width' => $package['width'] ?? null,
+                        'height' => $package['height'] ?? null,
+                        'weight' => $package['weight'] ?? null,
+                        'sort_order' => $index,
+                    ]);
+                }
+            }
+        }
 
         // Create invoice with line items if items are provided
         if ($request->has('items') && is_array($request->items)) {
@@ -81,7 +106,7 @@ class ShipmentController extends Controller
 
             // Create line items
             foreach ($request->items as $index => $item) {
-                if (!empty($item['description']) && !empty($item['rate'])) {
+                if (! empty($item['description']) && ! empty($item['rate'])) {
                     $invoice->items()->create([
                         'description' => $item['description'],
                         'quantity' => $item['quantity'] ?? 1,
@@ -93,17 +118,17 @@ class ShipmentController extends Controller
             }
         }
 
-        return redirect()->route('shipments.show', $shipment)
-            ->with('success', 'Shipment created successfully. Tracking Number: ' . $shipment->tracking_number);
+        return redirect()->route('admin.shipments.show', $shipment)
+            ->with('success', 'Shipment created successfully. Tracking Number: '.$shipment->tracking_number);
     }
-
 
     /**
      * Display the specified resource.
      */
     public function show(Shipment $shipment)
     {
-        $shipment->load(['client', 'statusUpdates', 'invoices.items']);
+        $shipment->load(['client', 'statusUpdates', 'invoices.items', 'invoices.payments']);
+
         return view('shipments.show', compact('shipment'));
     }
 
@@ -114,6 +139,7 @@ class ShipmentController extends Controller
     {
         $shipment->load(['invoices.items']);
         $clients = Client::orderBy('name')->get();
+
         return view('shipments.edit', compact('shipment', 'clients'));
     }
 
@@ -122,9 +148,69 @@ class ShipmentController extends Controller
      */
     public function update(UpdateShipmentRequest $request, Shipment $shipment)
     {
-        $shipment->update($request->validated());
+        $validated = $request->validated();
 
-        return redirect()->route('shipments.show', $shipment)
+        if (isset($validated['current_status']) && strtolower(trim($validated['current_status'])) === 'picked up') {
+            $shipment->load('invoices.items');
+            $invoice = $shipment->invoices->first();
+
+            $hasStorageFee = false;
+            if ($invoice && $invoice->items) {
+                foreach ($invoice->items as $item) {
+                    if (strtolower(trim($item->description)) === 'storage fee') {
+                        $hasStorageFee = true;
+                        break;
+                    }
+                }
+            }
+
+            if (! $hasStorageFee) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Cannot change status to "Picked Up". A "Storage Fee" must be added to the invoice. If there is no fee, please add it with an amount of 0.');
+            }
+
+            if ($invoice && $invoice->balance > 0) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Cannot change status to "Picked Up". The invoice has an outstanding balance. Please ensure the invoice is fully paid first.');
+            }
+        }
+
+        $shipment->update($validated);
+
+        // Update packages if provided
+        if ($request->has('packages') && is_array($request->packages)) {
+            // Delete existing packages that are not in the update
+            $packageIds = collect($request->packages)->pluck('id')->filter()->toArray();
+            $shipment->packages()->whereNotIn('id', $packageIds)->delete();
+
+            foreach ($request->packages as $index => $package) {
+                if (! empty($package['id'])) {
+                    // Update existing package
+                    $shipment->packages()->where('id', $package['id'])->update([
+                        'description' => $package['description'] ?? null,
+                        'quantity' => $package['quantity'] ?? 1,
+                        'length' => $package['length'] ?? null,
+                        'width' => $package['width'] ?? null,
+                        'height' => $package['height'] ?? null,
+                        'weight' => $package['weight'] ?? null,
+                        'sort_order' => $index,
+                    ]);
+                } elseif (! empty($package['description']) || ! empty($package['weight'])) {
+                    // Create new package
+                    $shipment->packages()->create([
+                        'description' => $package['description'] ?? null,
+                        'quantity' => $package['quantity'] ?? 1,
+                        'length' => $package['length'] ?? null,
+                        'width' => $package['width'] ?? null,
+                        'height' => $package['height'] ?? null,
+                        'weight' => $package['weight'] ?? null,
+                        'sort_order' => $index,
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('admin.shipments.show', $shipment)
             ->with('success', 'Shipment updated successfully.');
     }
 
@@ -135,9 +221,10 @@ class ShipmentController extends Controller
     {
         $shipment->delete();
 
-        return redirect()->route('shipments.index')
+        return redirect()->route('admin.shipments.index')
             ->with('success', 'Shipment deleted successfully.');
     }
+
     public function label(Shipment $shipment)
     {
         return view('shipments.label', compact('shipment'));
@@ -146,12 +233,12 @@ class ShipmentController extends Controller
     public function invoice(Shipment $shipment)
     {
         // Load relationships
-        $shipment->load(['client', 'receiver', 'invoices.items']);
-        
+        $shipment->load(['client', 'receiver', 'packages', 'batch', 'invoices.items', 'invoices.payments.recorder']);
+
         // Get or create invoice for this shipment
         $invoice = $shipment->invoices()->first();
-        
-        if (!$invoice) {
+
+        if (! $invoice) {
             // Create new invoice from shipment data
             $invoice = \App\Models\Invoice::create([
                 'shipment_id' => $shipment->id,
@@ -165,16 +252,16 @@ class ShipmentController extends Controller
                 'status' => $shipment->payment_status === 'paid' ? 'paid' : 'sent',
                 'created_by' => auth()->id(),
             ]);
-            
+
             // Create line items
             $order = 0;
             $subtotal = 0;
-            
+
             // Add shipping cost as line item
             if ($shipment->shipping_cost > 0) {
                 $amount = $shipment->shipping_cost;
                 $invoice->items()->create([
-                    'description' => ucfirst($shipment->service_type ?? 'Standard') . ' Shipping Service',
+                    'description' => ucfirst($shipment->service_type ?? 'Standard').' Shipping Service',
                     'quantity' => 1,
                     'rate' => $amount,
                     'amount' => $amount,
@@ -182,7 +269,7 @@ class ShipmentController extends Controller
                 ]);
                 $subtotal += $amount;
             }
-            
+
             // Add insurance as line item
             if ($shipment->insurance_value > 0) {
                 $amount = $shipment->insurance_value;
@@ -195,24 +282,26 @@ class ShipmentController extends Controller
                 ]);
                 $subtotal += $amount;
             }
-            
+
             // Update invoice totals
             $invoice->update([
                 'subtotal' => $subtotal,
                 'total' => $subtotal + $invoice->tax - $invoice->discount,
             ]);
         }
-        
+
         // Get company settings
         $companySettings = [
-            'name' => 'Bryan Logistics',
-            'address' => 'Ttowa Mall building, Room C102, Opposite CPS Kampala',
-            'phone' => '0755 729 943 / 0743 507 702',
-            'email' => 'bryanlogistics256@gmail.com',
-            'logo' => 'images/logo.png',
+            'name' => 'Eagle Cargo Freights',
+            'address' => 'P.O.Box 75529, Kampala',
+            'phone' => '+256 200 991 118',
+            'whatsapp' => '0777151635, +256 701 579417',
+            'china' => '+86 130 7021 8275',
+            'email' => 'eaglecargofreights@gmail.com',
+            'website' => 'www.eaglecargofreights.com',
+            'logo' => 'images/logo.jpeg',
         ];
-        
+
         return view('shipments.invoice', compact('shipment', 'invoice', 'companySettings'));
     }
 }
-

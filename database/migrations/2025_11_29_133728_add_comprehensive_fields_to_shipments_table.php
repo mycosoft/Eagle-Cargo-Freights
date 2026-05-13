@@ -62,7 +62,7 @@ return new class extends Migration
                 'sender_name', 'sender_phone', 'sender_address',
                 'receiver_name', 'receiver_phone', 'receiver_address',
                 'service_type', 'delivery_instructions', 'reference_number', 'special_notes',
-                'is_international', 'customs_value', 'customs_description'
+                'is_international', 'customs_value', 'customs_description',
             ]);
         });
     }

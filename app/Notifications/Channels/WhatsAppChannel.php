@@ -18,7 +18,6 @@ class WhatsAppChannel
      * Send the given notification.
      *
      * @param  mixed  $notifiable
-     * @param  \Illuminate\Notifications\Notification  $notification
      * @return void
      */
     public function send($notifiable, Notification $notification)
@@ -26,7 +25,7 @@ class WhatsAppChannel
         // Get the phone number from the notifiable entity
         $to = $notifiable->phone ?? $notifiable->routeNotificationFor('whatsapp');
 
-        if (!$to) {
+        if (! $to) {
             return;
         }
 

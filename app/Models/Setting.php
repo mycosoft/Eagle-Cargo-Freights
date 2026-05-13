@@ -14,6 +14,7 @@ class Setting extends Model
     public static function get($key, $default = null)
     {
         $setting = self::where('key', $key)->first();
+
         return $setting ? $setting->value : $default;
     }
 
@@ -26,5 +27,24 @@ class Setting extends Model
             ['key' => $key],
             ['value' => $value, 'type' => $type]
         );
+    }
+
+    /**
+     * Get the currency symbol for the current system currency
+     */
+    public static function getCurrencySymbol($code = null)
+    {
+        $code = $code ?: self::get('system_currency', 'UGX');
+
+        return match ($code) {
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+            'UGX' => 'UGX',
+            'KES' => 'KSh',
+            'TZS' => 'TSh',
+            'RWF' => 'FRw',
+            default => $code,
+        };
     }
 }

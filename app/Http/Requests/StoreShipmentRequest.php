@@ -23,6 +23,7 @@ class StoreShipmentRequest extends FormRequest
     {
         return [
             // Basic Information
+            'tracking_number' => ['nullable', 'string', 'max:255', 'unique:shipments,tracking_number'],
             'client_id' => ['required', 'exists:clients,id'],
             'origin' => ['required', 'string', 'max:255'],
             'destination' => ['required', 'string', 'max:255'],
@@ -31,7 +32,8 @@ class StoreShipmentRequest extends FormRequest
             'current_status' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'expected_delivery_date' => ['nullable', 'date', 'after_or_equal:today'],
-            
+            'china_warehouse_date' => ['nullable', 'date'],
+
             // Package Details
             'num_packages' => ['nullable', 'integer', 'min:1'],
             'length' => ['nullable', 'numeric', 'min:0'],
@@ -40,13 +42,13 @@ class StoreShipmentRequest extends FormRequest
             'package_type' => ['nullable', 'in:box,pallet,envelope,custom'],
             'fragile' => ['nullable', 'boolean'],
             'special_instructions' => ['nullable', 'string'],
-            
+
             // Receiver Information
             'receiver_id' => ['nullable', 'exists:clients,id'],
             'receiver_name' => ['nullable', 'string', 'max:255'],
             'receiver_phone' => ['nullable', 'string', 'max:20'],
             'receiver_address' => ['nullable', 'string'],
-            
+
             // Pricing & Billing
             'shipping_cost' => ['nullable', 'numeric', 'min:0'],
             'insurance_value' => ['nullable', 'numeric', 'min:0'],
@@ -56,13 +58,13 @@ class StoreShipmentRequest extends FormRequest
             'currency' => ['nullable', 'string', 'max:3'],
             'payment_method' => ['nullable', 'in:cash,card,bank_transfer,cod'],
             'payment_status' => ['nullable', 'in:pending,paid,refunded'],
-            
+
             // Additional Details
             'service_type' => ['nullable', 'in:express,standard,economy'],
             'delivery_instructions' => ['nullable', 'string'],
             'reference_number' => ['nullable', 'string', 'max:255'],
             'special_notes' => ['nullable', 'string'],
-            
+
             // Customs Information
             'is_international' => ['nullable', 'boolean'],
             'customs_value' => ['nullable', 'numeric', 'min:0'],

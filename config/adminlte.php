@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Bryan Logistics',
+    'title' => 'Eagle Cargo Freights Ltd',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Bryan</b> Logistics',
+    'logo' => '<b>Eagle</b> Cargo Freights Ltd',
     'logo_img' => '',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -301,9 +301,23 @@ return [
     'menu' => [
         // Navbar items:
         [
-            'type'         => 'navbar-search',
-            'text'         => 'search',
+            'type' => 'navbar-search',
+            'text' => 'search',
             'topnav_right' => false,
+        ],
+        [
+            'text' => 'Notifications',
+            'icon' => 'fas fa-bell',
+            'topnav_right' => true,
+            'layout' => 'partials.navbar-notification-bell',
+        ],
+        [
+            'text' => 'Track Package',
+            'url' => 'track',
+            'icon' => 'fas fa-map-marker-alt',
+            'topnav_right' => true,
+            'classes' => 'btn btn-sm btn-warning font-weight-bold ml-2 text-dark',
+            'target' => '_blank',
         ],
         [
             'type' => 'fullscreen-widget',
@@ -317,102 +331,156 @@ return [
         ],
         [
             'text' => 'Dashboard',
-            'url'  => 'dashboard',
+            'url' => 'dashboard',
             'icon' => 'fas fa-fw fa-tachometer-alt',
         ],
         [
             'text' => 'Clients',
             'icon' => 'fas fa-fw fa-users',
-            'can'  => 'manage clients',
+            'can' => 'view clients',
             'submenu' => [
                 [
                     'text' => 'All Clients',
-                    'url'  => 'clients',
+                    'url' => 'admin/clients',
                     'icon' => 'fas fa-fw fa-list',
                 ],
                 [
                     'text' => 'Import Clients',
-                    'url'  => 'admin/clients/import',
+                    'url' => 'admin/clients/import',
                     'icon' => 'fas fa-fw fa-file-upload',
+                    'can' => 'create clients',
                 ],
             ],
         ],
         [
             'text' => 'Air Cargo',
             'icon' => 'fas fa-fw fa-plane',
-            'can'  => 'manage shipments',
+            'can' => 'view air cargo',
             'submenu' => [
                 [
+                    'text' => 'Dashboard',
+                    'url' => 'admin/air-cargo/dashboard',
+                    'icon' => 'fas fa-fw fa-tachometer-alt',
+                ],
+                [
                     'text' => 'All Air Shipments',
-                    'url'  => 'admin/air-cargo',
+                    'url' => 'admin/air-cargo',
                     'icon' => 'fas fa-fw fa-list',
                 ],
                 [
                     'text' => 'Create Air Shipment',
-                    'url'  => 'admin/air-cargo/create',
+                    'url' => 'admin/air-cargo/create',
                     'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'create air cargo',
                 ],
             ],
         ],
         [
             'text' => 'Sea Cargo',
             'icon' => 'fas fa-fw fa-ship',
-            'can'  => 'manage shipments',
+            'can' => 'view sea cargo',
             'submenu' => [
                 [
+                    'text' => 'Dashboard',
+                    'url' => 'admin/sea-cargo/dashboard',
+                    'icon' => 'fas fa-fw fa-tachometer-alt',
+                ],
+                [
                     'text' => 'All Sea Shipments',
-                    'url'  => 'admin/sea-cargo',
+                    'url' => 'admin/sea-cargo',
                     'icon' => 'fas fa-fw fa-list',
                 ],
                 [
                     'text' => 'Create Sea Shipment',
-                    'url'  => 'admin/sea-cargo/create',
+                    'url' => 'admin/sea-cargo/create',
                     'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'create sea cargo',
                 ],
             ],
         ],
         [
             'text' => 'Batches',
-            'url'  => 'admin/batches',
+            'url' => 'admin/batches',
             'icon' => 'fas fa-fw fa-layer-group',
-            'can'  => 'manage shipments',
+            'can' => 'view batches',
         ],
         [
             'text' => 'Invoices',
-            'url'  => 'admin/invoices',
+            'url' => 'admin/invoices',
             'icon' => 'fas fa-fw fa-file-invoice-dollar',
-            'can'  => 'manage shipments',
+            'can' => 'view invoices',
+        ],
+        [
+            'text' => 'Transactions',
+            'url' => 'admin/transactions',
+            'icon' => 'fas fa-fw fa-exchange-alt',
+            'can' => 'view transactions',
+        ],
+        [
+            'text' => 'Expenses',
+            'icon' => 'fas fa-fw fa-money-bill-wave',
+            'can' => 'view expenses',
+            'submenu' => [
+                [
+                    'text' => 'All Expenses',
+                    'url' => 'admin/expenses',
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+                [
+                    'text' => 'Create Expense',
+                    'url' => 'admin/expenses/create',
+                    'icon' => 'fas fa-fw fa-plus',
+                    'can' => 'create expenses',
+                ],
+                [
+                    'text' => 'Categories',
+                    'url' => 'admin/expense-categories',
+                    'icon' => 'fas fa-fw fa-tags',
+                    'can' => 'view expense categories',
+                ],
+            ],
         ],
         ['header' => 'SYSTEM MANAGEMENT'],
         [
             'text' => 'Users',
-            'url'  => 'admin/users',
+            'url' => 'admin/users',
             'icon' => 'fas fa-fw fa-user-shield',
-            'can'  => 'manage users',
+            'can' => 'view users',
         ],
         [
             'text' => 'Roles',
-            'url'  => 'admin/roles',
+            'url' => 'admin/roles',
             'icon' => 'fas fa-fw fa-lock',
-            'can'  => 'manage roles',
+            'can' => 'view roles',
         ],
         [
             'text' => 'Broadcast',
-            'url'  => 'admin/broadcast',
+            'url' => 'admin/broadcast',
             'icon' => 'fas fa-fw fa-bullhorn',
-            'can'  => 'send broadcast',
+            'can' => 'send broadcast',
         ],
         [
             'text' => 'Reports',
-            'url'  => 'admin/reports',
+            'url' => 'admin/reports',
             'icon' => 'fas fa-fw fa-chart-bar',
-            'can'  => 'view reports',
+            'can' => 'view reports',
+        ],
+        [
+            'text' => 'Messages',
+            'url' => 'chat',
+            'icon' => 'fas fa-fw fa-comments',
+        ],
+        [
+            'text' => 'Activity Logs',
+            'url' => 'admin/activity-logs',
+            'icon' => 'fas fa-fw fa-history',
+            'can' => 'view activity logs',
         ],
         [
             'text' => 'Settings',
-            'url'  => 'admin/settings',
+            'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-cog',
-            'can'  => 'manage users',
+            'can' => 'manage settings',
         ],
     ],
 
@@ -472,7 +540,7 @@ return [
             ],
         ],
         'Select2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
@@ -497,7 +565,7 @@ return [
             ],
         ],
         'Sweetalert2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',

@@ -5,7 +5,6 @@ namespace App\Mail;
 use App\Models\Shipment;
 use App\Models\ShipmentStatusUpdate;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -16,6 +15,7 @@ class ShipmentStatusUpdatedMail extends Mailable
     use Queueable, SerializesModels;
 
     public $shipment;
+
     public $statusUpdate;
 
     /**
@@ -33,7 +33,7 @@ class ShipmentStatusUpdatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Shipment Status Update - ' . $this->shipment->tracking_number,
+            subject: 'Shipment Status Update - '.$this->shipment->tracking_number,
         );
     }
 

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
 use App\Models\Invoice;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Payment;
 use App\Models\Setting;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
@@ -16,7 +16,7 @@ class PaymentController extends Controller
     public function store(Request $request, Invoice $invoice)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $invoice->balance,
+            'amount' => 'required|numeric|min:0.01|max:'.$invoice->balance,
             'payment_date' => 'required|date',
             'payment_method' => 'required|in:cash,card,bank_transfer,mobile_money',
             'reference_number' => 'nullable|string|max:255',
@@ -28,7 +28,7 @@ class PaymentController extends Controller
         $payment = Payment::create($validated);
 
         return redirect()->route('admin.invoices.show', $invoice)
-            ->with('success', 'Payment recorded successfully. Receipt Number: ' . $payment->receipt_number);
+            ->with('success', 'Payment recorded successfully. Receipt Number: '.$payment->receipt_number);
     }
 
     /**
@@ -37,13 +37,16 @@ class PaymentController extends Controller
     public function show(Payment $payment)
     {
         $payment->load(['invoice.shipment.client', 'recorder']);
-        
+
         $companySettings = [
-            'name' => 'Bryanz Logistics',
-            'address' => 'Ttowa Mall building, Room C102, Opposite CPS Kampala',
-            'phone' => '0755 729 943 / 0743 507 702',
-            'email' => 'bryanlogistics256@gmail.com',
-            'logo' => 'images/logo.png',
+            'name' => 'Eagle Cargo Freights',
+            'address' => 'P.O.Box 75529, Kampala',
+            'phone' => '+256 200 991 118',
+            'whatsapp' => '0777151635, +256 701 579417',
+            'china' => '+86 130 7021 8275',
+            'email' => 'eaglecargofreights@gmail.com',
+            'website' => 'www.eaglecargofreights.com',
+            'logo' => 'images/logo.jpeg',
         ];
 
         return view('payments.show', compact('payment', 'companySettings'));
@@ -55,23 +58,26 @@ class PaymentController extends Controller
     public function generateReceipt(Payment $payment)
     {
         $payment->load(['invoice.shipment.client', 'recorder']);
-        
+
         $companySettings = [
-            'name' => 'Bryanz Logistics',
-            'address' => 'Ttowa Mall building, Room C102, Opposite CPS Kampala',
-            'phone' => '0755 729 943 / 0743 507 702',
-            'email' => 'bryanlogistics256@gmail.com',
-            'logo' => 'images/logo.png',
+            'name' => 'Eagle Cargo Freights',
+            'address' => 'P.O.Box 75529, Kampala',
+            'phone' => '+256 200 991 118',
+            'whatsapp' => '0777151635, +256 701 579417',
+            'china' => '+86 130 7021 8275',
+            'email' => 'eaglecargofreights@gmail.com',
+            'website' => 'www.eaglecargofreights.com',
+            'logo' => 'images/logo.jpeg',
         ];
 
         $pdf = Pdf::loadView('payments.receipt-pdf', [
             'payment' => $payment,
             'invoice' => $payment->invoice,
             'shipment' => $payment->invoice->shipment,
-            'companySettings' => $companySettings
+            'companySettings' => $companySettings,
         ]);
 
-        return $pdf->download('receipt-' . $payment->receipt_number . '.pdf');
+        return $pdf->download('receipt-'.$payment->receipt_number.'.pdf');
     }
 
     /**
@@ -80,10 +86,10 @@ class PaymentController extends Controller
     public function sendReceipt(Request $request, Payment $payment)
     {
         $payment->load(['invoice.shipment.client']);
-        
+
         $client = $payment->invoice->shipment->client;
-        
-        if (!$client) {
+
+        if (! $client) {
             return redirect()->back()->with('error', 'Client not found for this payment.');
         }
 
@@ -99,7 +105,7 @@ class PaymentController extends Controller
                 $client->notify(new \App\Notifications\ReceiptSent($payment));
                 $sentVia[] = 'email';
             } catch (\Exception $e) {
-                \Log::error('Failed to send receipt email: ' . $e->getMessage());
+                \Log::error('Failed to send receipt email: '.$e->getMessage());
             }
         }
 
@@ -109,7 +115,7 @@ class PaymentController extends Controller
                 $client->notify(new \App\Notifications\ReceiptSent($payment));
                 $sentVia[] = 'whatsapp';
             } catch (\Exception $e) {
-                \Log::error('Failed to send receipt WhatsApp: ' . $e->getMessage());
+                \Log::error('Failed to send receipt WhatsApp: '.$e->getMessage());
             }
         }
 
@@ -123,7 +129,8 @@ class PaymentController extends Controller
             'receipt_sent_via' => implode(',', $sentVia),
         ]);
 
-        $message = 'Receipt sent successfully via ' . implode(' and ', $sentVia) . '.';
+        $message = 'Receipt sent successfully via '.implode(' and ', $sentVia).'.';
+
         return redirect()->back()->with('success', $message);
     }
 

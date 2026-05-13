@@ -36,6 +36,7 @@
                     
                     <!-- Basic Information Tab -->
                     <div class="tab-pane fade show active" id="basic" role="tabpanel">
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -107,6 +108,7 @@
                                         <option value="Pending" {{ old('current_status', $shipment->current_status) == 'Pending' ? 'selected' : '' }}>Pending</option>
                                         <option value="Picked Up" {{ old('current_status', $shipment->current_status) == 'Picked Up' ? 'selected' : '' }}>Picked Up</option>
                                         <option value="In Transit" {{ old('current_status', $shipment->current_status) == 'In Transit' ? 'selected' : '' }}>In Transit</option>
+                                        <option value="At Warehouse in China" {{ old('current_status', $shipment->current_status) == 'At Warehouse in China' ? 'selected' : '' }}>At Warehouse in China</option>
                                         <option value="Arrived at Facility" {{ old('current_status', $shipment->current_status) == 'Arrived at Facility' ? 'selected' : '' }}>Arrived at Facility</option>
                                         <option value="Out for Delivery" {{ old('current_status', $shipment->current_status) == 'Out for Delivery' ? 'selected' : '' }}>Out for Delivery</option>
                                         <option value="Delivered" {{ old('current_status', $shipment->current_status) == 'Delivered' ? 'selected' : '' }}>Delivered</option>
@@ -119,6 +121,11 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="china_warehouse_date">Date Received at China Warehouse</label>
+                                    <input type="date" name="china_warehouse_date" id="china_warehouse_date" class="form-control" value="{{ old('china_warehouse_date', $shipment->china_warehouse_date) }}">
+                                </div>
+                            </div>
                                 <div class="form-group">
                                     <label for="expected_delivery_date">Expected Delivery</label>
                                     <input type="date" name="expected_delivery_date" id="expected_delivery_date" class="form-control @error('expected_delivery_date') is-invalid @enderror" value="{{ old('expected_delivery_date', $shipment->expected_delivery_date ? $shipment->expected_delivery_date->format('Y-m-d') : '') }}">
@@ -205,6 +212,59 @@
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <hr>
+                        <h5 class="mb-3">Package Items</h5>
+                        <p class="text-muted">Add individual packages with descriptions (optional)</p>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="packagesTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="25%">Description</th>
+                                        <th width="10%">Qty</th>
+                                        <th width="12%">Length (cm)</th>
+                                        <th width="12%">Width (cm)</th>
+                                        <th width="12%">Height (cm)</th>
+                                        <th width="12%">Weight (kg)</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="packagesBody">
+                                    @forelse($shipment->packages as $index => $package)
+                                    <tr class="package-row">
+                                        <td>
+                                            <input type="text" name="packages[{{ $index }}][description]" class="form-control form-control-sm" value="{{ $package->description }}" placeholder="Package description">
+                                            <input type="hidden" name="packages[{{ $index }}][id]" value="{{ $package->id }}">
+                                        </td>
+                                        <td>
+                                            <input type="number" name="packages[{{ $index }}][quantity]" class="form-control form-control-sm" value="{{ $package->quantity }}" min="1">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="packages[{{ $index }}][length]" class="form-control form-control-sm" value="{{ $package->length }}" placeholder="0">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="packages[{{ $index }}][width]" class="form-control form-control-sm" value="{{ $package->width }}" placeholder="0">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="packages[{{ $index }}][height]" class="form-control form-control-sm" value="{{ $package->height }}" placeholder="0">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="packages[{{ $index }}][weight]" class="form-control form-control-sm" value="{{ $package->weight }}" placeholder="0">
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-danger remove-package"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-success mb-3" id="addPackage">
+                            <i class="fas fa-plus"></i> Add Package
+                        </button>
                     </div>
 
                     <!-- Sender & Receiver Tab -->
@@ -592,15 +652,56 @@ billingInputs.forEach(input => {
     input.addEventListener('input', calculateTotal);
 });
 </script>
+// ========== PACKAGES MANAGEMENT ==========
+let packageIndex = {{ $shipment->packages->count() }};
+
+document.getElementById('addPackage').addEventListener('click', function() {
+    const tbody = document.getElementById('packagesBody');
+    const newRow = `
+        <tr class="package-row">
+            <td>
+                <input type="text" name="packages[${packageIndex}][description]" class="form-control form-control-sm" placeholder="Package description">
+            </td>
+            <td>
+                <input type="number" name="packages[${packageIndex}][quantity]" class="form-control form-control-sm" value="1" min="1">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][length]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][width]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][height]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][weight]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-danger remove-package"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRow);
+    packageIndex++;
+});
+
+// Remove package
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-package')) {
+        const row = e.target.closest('tr');
+        row.remove();
+    }
+});
 @stop
 
 
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
 

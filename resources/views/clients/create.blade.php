@@ -8,7 +8,7 @@
 
 @section('content')
     <div class="card">
-        <form action="{{ route('clients.store') }}" method="POST">
+        <form action="{{ route('admin.clients.store') }}" method="POST">
             @csrf
             <div class="card-body">
                 <div class="row">
@@ -66,7 +66,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Create Client
                 </button>
-                <a href="{{ route('clients.index') }}" class="btn btn-default">
+                <a href="{{ route('admin.clients.index') }}" class="btn btn-default">
                     <i class="fas fa-times"></i> Cancel
                 </a>
             </div>
@@ -77,10 +77,10 @@
 
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
 

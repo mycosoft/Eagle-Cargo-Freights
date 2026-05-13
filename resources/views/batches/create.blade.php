@@ -49,6 +49,7 @@
                                 <option value="Pending" {{ old('current_status') == 'Pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="Picked Up" {{ old('current_status') == 'Picked Up' ? 'selected' : '' }}>Picked Up</option>
                                 <option value="In Transit" {{ old('current_status') == 'In Transit' ? 'selected' : '' }}>In Transit</option>
+                                <option value="At Warehouse in China" {{ old('current_status') == 'At Warehouse in China' ? 'selected' : '' }}>At Warehouse in China</option>
                                 <option value="Arrived at Facility" {{ old('current_status') == 'Arrived at Facility' ? 'selected' : '' }}>Arrived at Facility</option>
                                 <option value="Out for Delivery" {{ old('current_status') == 'Out for Delivery' ? 'selected' : '' }}>Out for Delivery</option>
                                 <option value="Delivered" {{ old('current_status') == 'Delivered' ? 'selected' : '' }}>Delivered</option>
@@ -112,6 +113,66 @@
 let shipmentIndex = 0;
 const clients = @json($clients);
 
+// Client search functionality
+let searchTimeouts = {};
+
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('client-search-input')) {
+        const input = e.target;
+        const index = input.dataset.index;
+        const results = document.querySelector(`.client-results[data-index="${index}"]`);
+        const clientIdInput = document.querySelector(`input.client-id-input[data-index="${index}"]`);
+        
+        if (!results || !clientIdInput) return;
+        
+        const query = input.value;
+        clearTimeout(searchTimeouts[index]);
+        
+        if (query.length < 1) {
+            results.style.display = 'none';
+            return;
+        }
+        
+        searchTimeouts[index] = setTimeout(() => {
+            fetch('{{ route("admin.clients.search") }}?q=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(clients => {
+                    if (clients.length > 0) {
+                        results.innerHTML = clients.map(client => 
+                            `<a href="#" class="list-group-item list-group-item-action" data-id="${client.id}" data-name="${client.name}">
+                                <strong>${client.name}</strong>
+                                <small class="text-muted">${client.email || ''} ${client.company ? '- ' + client.company : ''}</small>
+                            </a>`
+                        ).join('');
+                        results.style.display = 'block';
+                    } else {
+                        results.innerHTML = '<div class="list-group-item">No clients found</div>';
+                        results.style.display = 'block';
+                    }
+                });
+        }, 100);
+    }
+});
+
+document.addEventListener('click', function(e) {
+    const item = e.target.closest('a.list-group-item-action');
+    if (item) {
+        e.preventDefault();
+        const results = item.closest('.client-results');
+        const input = document.querySelector(`.client-search-input[data-index="${results.dataset.index}"]`);
+        const clientIdInput = document.querySelector(`.client-id-input[data-index="${results.dataset.index}"]`);
+        
+        clientIdInput.value = item.dataset.id;
+        input.value = item.dataset.name;
+        results.style.display = 'none';
+    }
+    
+    // Close dropdowns when clicking outside
+    if (!e.target.classList.contains('client-search-input') && !e.target.closest('.client-results')) {
+        document.querySelectorAll('.client-results').forEach(r => r.style.display = 'none');
+    }
+});
+
 // Shipment template
 function getShipmentTemplate(index) {
     const cargoType = document.getElementById('cargo_type').value;
@@ -130,12 +191,11 @@ function getShipmentTemplate(index) {
                 <div class="row">
                     <!-- Client Selection -->
                     <div class="col-md-4">
-                        <div class="form-group">
+                        <div class="form-group" style="position: relative;">
                             <label>Client <span class="text-danger">*</span></label>
-                            <select name="shipments[${index}][client_id]" class="form-control client-select" required>
-                                <option value="">Select Client</option>
-                                ${clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
-                            </select>
+                            <input type="text" class="form-control client-search-input" data-index="${index}" placeholder="Search client..." autocomplete="off">
+                            <input type="hidden" name="shipments[${index}][client_id]" class="client-id-input" data-index="${index}" required>
+                            <div class="client-results list-group shadow" data-index="${index}" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; max-height: 250px; overflow-y: auto; display: none;"></div>
                         </div>
                     </div>
                     
@@ -194,15 +254,36 @@ function getShipmentTemplate(index) {
                 </div>
 
                 ${cargoType === 'sea' ? `
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>CBM (Cubic Meters)</label>
-                            <input type="number" step="0.001" name="shipments[${index}][cbm]" class="form-control" placeholder="0.000">
-                            <small class="form-text text-muted">Cubic Meter measurement for sea cargo</small>
-                        </div>
-                    </div>
+                <h6 class="text-primary mt-3"><i class="fas fa-box"></i> Package Items</h6>
+                <p class="text-muted small">Add individual packages with dimensions (for sea cargo CBM calculation)</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm shipment-packages-table" id="shipment-packages-${index}">
+                        <thead class="thead-light">
+                            <tr>
+                                <th width="25%">Description</th>
+                                <th width="10%">Qty</th>
+                                <th width="10%">Length (cm)</th>
+                                <th width="10%">Width (cm)</th>
+                                <th width="10%">Height (cm)</th>
+                                <th width="10%">CBM</th>
+                                <th width="10%">Weight (kg)</th>
+                                <th width="5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="shipment-packages-body-${index}">
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-secondary">
+                                <td colspan="5" class="text-right"><strong>Total CBM:</strong></td>
+                                <td><strong class="shipment-total-cbm-${index}">0.0000</strong></td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
+                <button type="button" class="btn btn-sm btn-success mb-3 add-batch-package" data-shipment-index="${index}">
+                    <i class="fas fa-plus"></i> Add Package
+                </button>
                 ` : ''}
 
                 <!-- Collapsible Additional Details -->
@@ -255,10 +336,10 @@ function getShipmentTemplate(index) {
                             <div class="form-group">
                                 <label>Currency</label>
                                 <select name="shipments[${index}][currency]" class="form-control shipment-currency">
-                                    <option value="UGX" selected>UGX (Shs)</option>
-                                    <option value="USD">USD ($)</option>
+                                    <option value="USD" selected>USD ($)</option>
                                     <option value="EUR">EUR (€)</option>
                                     <option value="GBP">GBP (£)</option>
+                                    <option value="UGX">UGX (Shs)</option>
                                 </select>
                             </div>
                         </div>
@@ -277,13 +358,6 @@ function getShipmentTemplate(index) {
                                 </tr>
                             </thead>
                             <tbody class="shipment-items-body">
-                                <tr class="line-item-row">
-                                    <td><input type="text" name="shipments[${index}][items][0][description]" class="form-control form-control-sm" placeholder="E.g., Freight Charges" required></td>
-                                    <td><input type="number" name="shipments[${index}][items][0][quantity]" class="form-control form-control-sm item-quantity" value="1" min="1" required></td>
-                                    <td><input type="number" step="0.01" name="shipments[${index}][items][0][rate]" class="form-control form-control-sm item-rate" placeholder="0.00" required></td>
-                                    <td><input type="number" step="0.01" name="shipments[${index}][items][0][amount]" class="form-control form-control-sm item-amount" placeholder="0.00" readonly></td>
-                                    <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-batch-item" disabled><i class="fas fa-trash"></i></button></td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -305,10 +379,6 @@ function getShipmentTemplate(index) {
                                 <tr>
                                     <td class="text-right"><strong>Tax:</strong></td>
                                     <td><input type="number" step="0.01" name="shipments[${index}][tax]" class="form-control form-control-sm shipment-tax" value="0"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-right"><strong>Discount:</strong></td>
-                                    <td><input type="number" step="0.01" name="shipments[${index}][discount]" class="form-control form-control-sm shipment-discount" value="0"></td>
                                 </tr>
                                 <tr class="table-active">
                                     <td class="text-right"><strong>Total:</strong></td>
@@ -441,16 +511,30 @@ document.addEventListener('click', function(e) {
         const tbody = table.querySelector('.shipment-items-body');
         
         if (!batchItemIndexes[shipmentIndex]) {
-            batchItemIndexes[shipmentIndex] = 1;
+            batchItemIndexes[shipmentIndex] = 0;
         } else {
             batchItemIndexes[shipmentIndex]++;
         }
         
         const itemIndex = batchItemIndexes[shipmentIndex];
+        const totalCbmElement = document.querySelector(`.shipment-total-cbm-${shipmentIndex}`);
+        const totalCbm = totalCbmElement ? parseFloat(totalCbmElement.textContent) || 0 : 0;
         const newRow = `
             <tr class="line-item-row">
-                <td><input type="text" name="shipments[${shipmentIndex}][items][${itemIndex}][description]" class="form-control form-control-sm" placeholder="E.g., Handling Fee" required></td>
-                <td><input type="number" name="shipments[${shipmentIndex}][items][${itemIndex}][quantity]" class="form-control form-control-sm item-quantity" value="1" min="1" required></td>
+                <td>
+                    <select name="shipments[${shipmentIndex}][items][${itemIndex}][description]" class="form-control form-control-sm" required>
+                        <option value="">Select Item</option>
+                        <option value="Freight Charges">Freight Charges</option>
+                        <option value="House Bill">House Bill</option>
+                        <option value="COC Charges (PIVOC)">COC Charges (PIVOC)</option>
+                        <option value="Freight MBS to KLA">Freight MBS to KLA</option>
+                        <option value="Storage Bill">Storage Bill</option>
+                        <option value="Handling Fee">Handling Fee</option>
+                        <option value="Customs Fee">Customs Fee</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </td>
+                <td><input type="number" step="any" name="shipments[${shipmentIndex}][items][${itemIndex}][quantity]" class="form-control form-control-sm item-quantity" value="${totalCbm > 0 ? totalCbm.toFixed(4) : 1}" min="0" required></td>
                 <td><input type="number" step="0.01" name="shipments[${shipmentIndex}][items][${itemIndex}][rate]" class="form-control form-control-sm item-rate" placeholder="0.00" required></td>
                 <td><input type="number" step="0.01" name="shipments[${shipmentIndex}][items][${itemIndex}][amount]" class="form-control form-control-sm item-amount" placeholder="0.00" readonly></td>
                 <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-batch-item"><i class="fas fa-trash"></i></button></td>
@@ -477,7 +561,9 @@ document.addEventListener('click', function(e) {
 function updateBatchRemoveButtons(table) {
     const rows = table.querySelectorAll('.line-item-row');
     const removeButtons = table.querySelectorAll('.remove-batch-item');
-    removeButtons.forEach(btn => btn.disabled = rows.length === 1);
+    removeButtons.forEach((btn, index) => {
+        btn.disabled = false;
+    });
 }
 
 // Calculate batch line item amount
@@ -516,8 +602,7 @@ function calculateBatchShipmentTotal(table) {
 function calculateBatchFinalTotal(card) {
     const subtotal = parseFloat(card.querySelector('.shipment-shipping-cost').value) || 0;
     const tax = parseFloat(card.querySelector('.shipment-tax').value) || 0;
-    const discount = parseFloat(card.querySelector('.shipment-discount').value) || 0;
-    card.querySelector('.shipment-total').value = (subtotal + tax - discount).toFixed(2);
+    card.querySelector('.shipment-total').value = (subtotal + tax).toFixed(2);
 }
 
 // Attach tax/discount listeners when shipment is added
@@ -531,7 +616,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateBatchRemoveButtons(table);
                     
                     node.querySelector('.shipment-tax').addEventListener('input', () => calculateBatchFinalTotal(node));
-                    node.querySelector('.shipment-discount').addEventListener('input', () => calculateBatchFinalTotal(node));
+                    
+                    // Add Cargo dimensional sync hooks (Air = normal weight, Sea = CBM volumetric checks)
+                    const cargoType = document.getElementById('cargo_type').value;
+                    const weightInput = node.querySelector('input[name*="[weight]"]');
+                    
+                    if (cargoType === 'air') {
+                        if (weightInput) {
+                            weightInput.addEventListener('input', function() {
+                                const w = this.value || 1;
+                                node.querySelectorAll('.item-quantity').forEach(input => {
+                                    input.value = w;
+                                    input.dispatchEvent(new Event('input'));
+                                });
+                            });
+                        }
+                    }
                 }
             });
         });
@@ -539,13 +639,108 @@ document.addEventListener('DOMContentLoaded', function() {
     
     observer.observe(document.getElementById('shipmentsContainer'), { childList: true });
 });
+
+// ========== BATCH PACKAGES MANAGEMENT (For Sea Cargo) ==========
+let batchPackageIndexes = {};
+
+function calculateBatchPackageCbm(row) {
+    const length = parseFloat(row.querySelector('.pkg-length')?.value) || 0;
+    const width = parseFloat(row.querySelector('.pkg-width')?.value) || 0;
+    const height = parseFloat(row.querySelector('.pkg-height')?.value) || 0;
+    const quantity = parseFloat(row.querySelector('.pkg-qty')?.value) || 1;
+    
+    const cbm = (length * width * height / 1000000) * quantity;
+    const cbmInput = row.querySelector('.pkg-cbm');
+    if (cbmInput) {
+        cbmInput.value = cbm.toFixed(4);
+    }
+    return cbm;
+}
+
+function updateBatchShipmentTotalCbm(shipmentIndex) {
+    let totalCbm = 0;
+    const tbody = document.querySelector(`.shipment-packages-body-${shipmentIndex}`);
+    if (tbody) {
+        tbody.querySelectorAll('.package-row').forEach(row => {
+            const cbmInput = row.querySelector('.pkg-cbm');
+            const cbm = parseFloat(cbmInput?.value) || 0;
+            totalCbm += cbm;
+        });
+        document.querySelector(`.shipment-total-cbm-${shipmentIndex}`).textContent = totalCbm.toFixed(4);
+    }
+}
+
+// Add package to batch shipment
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.add-batch-package')) {
+        const btn = e.target.closest('.add-batch-package');
+        const shipmentIndex = btn.dataset.shipmentIndex;
+        const tbody = document.querySelector(`.shipment-packages-body-${shipmentIndex}`);
+        
+        if (!batchPackageIndexes[shipmentIndex]) {
+            batchPackageIndexes[shipmentIndex] = 0;
+        } else {
+            batchPackageIndexes[shipmentIndex]++;
+        }
+        
+        const pkgIndex = batchPackageIndexes[shipmentIndex];
+        const newRow = `
+            <tr class="package-row">
+                <td>
+                    <input type="text" name="shipments[${shipmentIndex}][packages][${pkgIndex}][description]" class="form-control form-control-sm" placeholder="Package description">
+                </td>
+                <td>
+                    <input type="number" name="shipments[${shipmentIndex}][packages][${pkgIndex}][quantity]" class="form-control form-control-sm pkg-qty" value="1" min="1">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="shipments[${shipmentIndex}][packages][${pkgIndex}][length]" class="form-control form-control-sm pkg-length" placeholder="0">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="shipments[${shipmentIndex}][packages][${pkgIndex}][width]" class="form-control form-control-sm pkg-width" placeholder="0">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="shipments[${shipmentIndex}][packages][${pkgIndex}][height]" class="form-control form-control-sm pkg-height" placeholder="0">
+                </td>
+                <td>
+                    <input type="number" step="0.0001" name="shipments[${shipmentIndex}][packages][${pkgIndex}][cbm]" class="form-control form-control-sm pkg-cbm" placeholder="0">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="shipments[${shipmentIndex}][packages][${pkgIndex}][weight]" class="form-control form-control-sm" placeholder="0">
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-danger remove-batch-package"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', newRow);
+        
+        // Add event listeners for manual CBM input
+        const row = tbody.lastElementChild;
+        row.querySelectorAll('.pkg-cbm').forEach(input => {
+            input.addEventListener('input', () => {
+                updateBatchShipmentTotalCbm(shipmentIndex);
+            });
+        });
+    }
+});
+
+// Remove package from batch shipment
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-batch-package')) {
+        const row = e.target.closest('tr');
+        const shipmentIndex = row.closest('tbody').className.match(/shipment-packages-body-(\d+)/)[1];
+        row.remove();
+        updateBatchShipmentTotalCbm(shipmentIndex);
+    }
+});
+
 </script>
 @stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Shipment extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'client_id',
@@ -20,6 +21,7 @@ class Shipment extends Model
         'current_status',
         'description',
         'expected_delivery_date',
+        'china_warehouse_date',
         // Delivery Range
         'delivery_time_min',
         'delivery_time_max',
@@ -79,48 +81,16 @@ class Shipment extends Model
         'cbm' => 'decimal:3',
     ];
 
+    /**
+     * Default attribute values
+     */
+    protected $attributes = [
+        'currency' => 'USD',
+    ];
 
     /**
-     * Boot the model and generate tracking number
+     * Auto-generates tracking number if not provided.
      */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($shipment) {
-            if (empty($shipment->tracking_number)) {
-                $shipment->tracking_number = self::generateTrackingNumber();
-            }
-        });
-    }
-
-    /**
-     * Generate a unique tracking number
-     * Format: BRY-YYYYMMDD-UNIQUENUMBER (e.g., BRY-20251129-000001)
-     */
-    public static function generateTrackingNumber()
-    {
-        $date = date('Ymd');
-        $prefix = 'BRY-' . $date . '-';
-        
-        // Get the last shipment created today
-        $lastShipment = self::where('tracking_number', 'like', $prefix . '%')
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if ($lastShipment) {
-            // Extract the unique ID from the last tracking number
-            $lastNumber = (int) substr($lastShipment->tracking_number, -6);
-            $newNumber = $lastNumber + 1;
-        } else {
-            $newNumber = 1;
-        }
-
-        // Pad with zeros to make it 6 digits
-        $uniqueId = str_pad($newNumber, 6, '0', STR_PAD_LEFT);
-
-        return $prefix . $uniqueId;
-    }
 
     /**
      * Get the client that owns the shipment
@@ -171,13 +141,34 @@ class Shipment extends Model
     }
 
     /**
+     * Get the packages for the shipment
+     */
+    public function packages()
+    {
+        return $this->hasMany(ShipmentPackage::class)->orderBy('sort_order');
+    }
+
+    /**
+     * Generate a unique tracking number
+     */
+    public static function generateTrackingNumber($prefix = 'EGL-')
+    {
+        do {
+            $number = $prefix.mt_rand(10000000, 99999999);
+        } while (self::where('tracking_number', $number)->exists());
+
+        return $number;
+    }
+
+    /**
      * Get formatted delivery range (e.g., "5-7 days" or "2-3 months")
      */
     public function getDeliveryRangeAttribute()
     {
         if ($this->delivery_time_min && $this->delivery_time_max && $this->delivery_time_unit) {
-            return $this->delivery_time_min . '-' . $this->delivery_time_max . ' ' . $this->delivery_time_unit;
+            return $this->delivery_time_min.'-'.$this->delivery_time_max.' '.$this->delivery_time_unit;
         }
+
         return null;
     }
 }

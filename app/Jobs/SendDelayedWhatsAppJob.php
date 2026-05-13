@@ -62,14 +62,15 @@ class SendDelayedWhatsAppJob implements ShouldQueue
 
     /**
      * Execute the job.
-     * 
+     *
      * This job sends WhatsApp messages with proper delays to prevent account bans.
      */
     public function handle(): void
     {
         try {
-            if (!$this->client->phone) {
+            if (! $this->client->phone) {
                 Log::warning("[Delayed WhatsApp] Client {$this->client->name} has no phone number");
+
                 return;
             }
 
@@ -81,8 +82,8 @@ class SendDelayedWhatsAppJob implements ShouldQueue
             Log::info("[Delayed WhatsApp] Successfully sent to {$this->client->phone}");
 
         } catch (\Exception $e) {
-            Log::error("[Delayed WhatsApp] Failed to send to {$this->client->phone}: " . $e->getMessage());
-            
+            Log::error("[Delayed WhatsApp] Failed to send to {$this->client->phone}: ".$e->getMessage());
+
             // Rethrow to trigger retry mechanism
             throw $e;
         }
@@ -93,6 +94,6 @@ class SendDelayedWhatsAppJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error("[Delayed WhatsApp] Job permanently failed for client {$this->client->name}: " . $exception->getMessage());
+        Log::error("[Delayed WhatsApp] Job permanently failed for client {$this->client->name}: ".$exception->getMessage());
     }
 }

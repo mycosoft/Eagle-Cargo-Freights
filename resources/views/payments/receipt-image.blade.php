@@ -99,8 +99,9 @@
             <div class="company-name">{{ $companySettings['name'] }}</div>
             <div style="color: #7f8c8d; font-size: 14px; margin-top: 5px;">
                 {{ $companySettings['address'] }}<br>
-                {{ $companySettings['phone'] }}<br>
-                {{ $companySettings['email'] }}
+                Call: {{ $companySettings['phone'] }} | WhatsApp: {{ $companySettings['whatsapp'] }}<br>
+                China: {{ $companySettings['china'] }} | Website: {{ $companySettings['website'] }}<br>
+                Email: {{ $companySettings['email'] }}
             </div>
         </div>
 
@@ -134,24 +135,34 @@
             </div>
         </div>
 
+        @php
+            $curr = $payment->invoice->shipment->currency ?? \App\Models\Setting::get('system_currency', 'UGX');
+            $sym = match($curr) {
+                'USD' => '$',
+                'EUR' => '€',
+                'GBP' => '£',
+                default => $curr,
+            };
+        @endphp
+
         <div class="amount-section">
             <div class="amount-label">Amount Paid</div>
-            <div class="amount-value">UGX {{ number_format($payment->amount, 0) }}</div>
+            <div class="amount-value">{{ $sym }} {{ number_format($payment->amount, 0) }}</div>
         </div>
 
         <div class="info-section">
             <div class="info-row">
                 <span class="info-label">Invoice Total:</span>
-                <span class="info-value">UGX {{ number_format($payment->invoice->total, 0) }}</span>
+                <span class="info-value">{{ $sym }} {{ number_format($payment->invoice->total, 0) }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Total Paid:</span>
-                <span class="info-value">UGX {{ number_format($payment->invoice->amount_paid, 0) }}</span>
+                <span class="info-value">{{ $sym }} {{ number_format($payment->invoice->amount_paid, 0) }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Balance Due:</span>
                 <span class="info-value" style="color: {{ $payment->invoice->balance > 0 ? '#e74c3c' : '#27ae60' }}; font-weight: bold;">
-                    UGX {{ number_format($payment->invoice->balance, 0) }}
+                    {{ $sym }} {{ number_format($payment->invoice->balance, 0) }}
                 </span>
             </div>
         </div>
@@ -159,7 +170,7 @@
         <div class="footer">
             <div class="thank-you">Thank You!</div>
             <p>This is an official receipt from {{ $companySettings['name'] }}</p>
-            <p style="margin-top: 10px;">For any queries, please contact us at {{ $companySettings['phone'] }}</p>
+            <p style="margin-top: 10px;">For any queries, please contact us at {{ $companySettings['phone'] }} or {{ $companySettings['email'] }}</p>
         </div>
     </div>
 </body>

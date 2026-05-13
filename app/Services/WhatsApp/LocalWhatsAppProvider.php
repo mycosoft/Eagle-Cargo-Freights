@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class LocalWhatsAppProvider implements WhatsAppProviderInterface
 {
     protected $apiUrl;
+
     protected $webhookSecret;
 
     public function __construct()
@@ -24,7 +25,7 @@ class LocalWhatsAppProvider implements WhatsAppProviderInterface
         try {
             // Remove any non-numeric characters except +
             $to = preg_replace('/[^0-9+]/', '', $to);
-            
+
             // Remove leading + if present
             $to = ltrim($to, '+');
 
@@ -39,35 +40,35 @@ class LocalWhatsAppProvider implements WhatsAppProviderInterface
 
             if ($response->successful() && isset($responseData['code']) && $responseData['code'] === 'SUCCESS') {
                 Log::info("[Local WhatsApp] Message sent successfully to {$to}", [
-                    'response' => $responseData
+                    'response' => $responseData,
                 ]);
 
                 return [
                     'success' => true,
                     'message_id' => $responseData['message_id'] ?? $responseData['id'] ?? null,
                     'provider' => 'local',
-                    'data' => $responseData
+                    'data' => $responseData,
                 ];
             } else {
                 Log::error("[Local WhatsApp] Failed to send message to {$to}", [
                     'status' => $response->status(),
-                    'response' => $responseData
+                    'response' => $responseData,
                 ]);
 
                 return [
                     'success' => false,
                     'error' => $responseData['message'] ?? $responseData['error'] ?? 'Unknown error',
                     'provider' => 'local',
-                    'data' => $responseData
+                    'data' => $responseData,
                 ];
             }
         } catch (\Exception $e) {
-            Log::error("[Local WhatsApp] Exception while sending message to {$to}: " . $e->getMessage());
+            Log::error("[Local WhatsApp] Exception while sending message to {$to}: ".$e->getMessage());
 
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
-                'provider' => 'local'
+                'provider' => 'local',
             ];
         }
     }
@@ -81,14 +82,14 @@ class LocalWhatsAppProvider implements WhatsAppProviderInterface
         // Local API doesn't support templates, so we'll send as a regular message
         // You can customize this to format the template as a text message
         $message = "Template: {$templateName}";
-        
-        if (!empty($parameters)) {
-            $message .= "\n" . json_encode($parameters, JSON_PRETTY_PRINT);
+
+        if (! empty($parameters)) {
+            $message .= "\n".json_encode($parameters, JSON_PRETTY_PRINT);
         }
 
-        Log::warning("[Local WhatsApp] Templates not supported, sending as text message", [
+        Log::warning('[Local WhatsApp] Templates not supported, sending as text message', [
             'template' => $templateName,
-            'to' => $to
+            'to' => $to,
         ]);
 
         return $this->sendMessage($to, $message);
@@ -106,9 +107,11 @@ class LocalWhatsAppProvider implements WhatsAppProviderInterface
         try {
             // Try to ping the API to check if it's running
             $response = Http::timeout(5)->get("{$this->apiUrl}/devices");
+
             return $response->successful();
         } catch (\Exception $e) {
-            Log::debug("[Local WhatsApp] API not available: " . $e->getMessage());
+            Log::debug('[Local WhatsApp] API not available: '.$e->getMessage());
+
             return false;
         }
     }
@@ -128,22 +131,22 @@ class LocalWhatsAppProvider implements WhatsAppProviderInterface
     {
         try {
             $response = Http::timeout(10)->get("{$this->apiUrl}/devices");
-            
+
             if ($response->successful()) {
                 return [
                     'success' => true,
-                    'data' => $response->json()
+                    'data' => $response->json(),
                 ];
             }
 
             return [
                 'success' => false,
-                'error' => 'Failed to get devices'
+                'error' => 'Failed to get devices',
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }
@@ -169,11 +172,12 @@ class LocalWhatsAppProvider implements WhatsAppProviderInterface
 
             if ($response->successful()) {
                 Log::info("[Local WhatsApp] Image sent successfully to {$to}");
+
                 return [
                     'success' => true,
                     'message_id' => $responseData['message_id'] ?? $responseData['id'] ?? null,
                     'provider' => 'local',
-                    'data' => $responseData
+                    'data' => $responseData,
                 ];
             }
 
@@ -181,14 +185,15 @@ class LocalWhatsAppProvider implements WhatsAppProviderInterface
                 'success' => false,
                 'error' => $responseData['message'] ?? 'Unknown error',
                 'provider' => 'local',
-                'data' => $responseData
+                'data' => $responseData,
             ];
         } catch (\Exception $e) {
-            Log::error("[Local WhatsApp] Exception while sending image to {$to}: " . $e->getMessage());
+            Log::error("[Local WhatsApp] Exception while sending image to {$to}: ".$e->getMessage());
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
-                'provider' => 'local'
+                'provider' => 'local',
             ];
         }
     }

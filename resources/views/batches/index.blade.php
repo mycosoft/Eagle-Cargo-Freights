@@ -8,9 +8,11 @@
             <h1>Shipment Batches</h1>
         </div>
         <div class="col-sm-6">
+            @can('create batches')
             <a href="{{ route('admin.batches.create') }}" class="btn btn-primary float-right">
                 <i class="fas fa-plus"></i> Create Batch
             </a>
+            @endcan
         </div>
     </div>
 @stop
@@ -74,11 +76,20 @@
                                 <td>
                                     @php
                                         $statusColors = [
-                                            'pending' => 'warning',
-                                            'processing' => 'info',
-                                            'in_transit' => 'primary',
-                                            'delivered' => 'success',
-                                            'cancelled' => 'danger'
+                                            'Pending'             => 'warning',
+                                            'Picked Up'           => 'info',
+                                            'In Transit'          => 'primary',
+                                            'Arrived at Facility' => 'secondary',
+                                            'Out for Delivery'    => 'info',
+                                            'Delivered'           => 'success',
+                                            'On Hold'             => 'dark',
+                                            'Cancelled'           => 'danger',
+                                            // lowercase fallbacks
+                                            'pending'             => 'warning',
+                                            'processing'          => 'info',
+                                            'in_transit'          => 'primary',
+                                            'delivered'           => 'success',
+                                            'cancelled'           => 'danger',
                                         ];
                                         $badgeClass = $statusColors[$batch->current_status] ?? 'secondary';
                                     @endphp
@@ -93,16 +104,20 @@
                                     <a href="{{ route('admin.batches.packing-list', $batch) }}" class="btn btn-sm btn-success" title="Packing List">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
+                                    @can('edit batches')
                                     <a href="{{ route('admin.batches.edit', $batch) }}" class="btn btn-sm btn-warning" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('admin.batches.destroy', $batch) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Delete this batch? Shipments will not be deleted, only unlinked from the batch.');">
+                                    @endcan
+                                    @can('delete batches')
+                                    <form action="{{ route('admin.batches.destroy', $batch) }}" method="POST" style="display:inline-block;" class="delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
@@ -120,10 +135,35 @@
     </div>
 @stop
 
+@section('js')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Delete this batch?',
+                text: "Shipments will not be deleted, only unlinked from the batch.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
+@stop
+
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop

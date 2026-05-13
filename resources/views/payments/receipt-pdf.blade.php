@@ -112,7 +112,9 @@
         <img src="{{ public_path($companySettings['logo']) }}" alt="{{ $companySettings['name'] }}" class="logo">
         <div class="company-details">
             {{ $companySettings['address'] }}<br>
-            Tel: {{ $companySettings['phone'] }} | Email: {{ $companySettings['email'] }}
+            Call: {{ $companySettings['phone'] }} | WhatsApp: {{ $companySettings['whatsapp'] }}<br>
+            China: {{ $companySettings['china'] }} | Website: {{ $companySettings['website'] }}<br>
+            Email: {{ $companySettings['email'] }}
         </div>
         <div class="document-title">Payment Receipt</div>
     </div>
@@ -140,9 +142,19 @@
         </table>
     </div>
 
+    @php
+        $curr = $shipment->currency ?? \App\Models\Setting::get('system_currency', 'UGX');
+        $sym = match($curr) {
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+            default => $curr,
+        };
+    @endphp
+
     <div class="amount-box">
         <div class="label">Amount Paid</div>
-        <div class="amount">UGX {{ number_format($payment->amount, 2) }}</div>
+        <div class="amount">{{ $sym }} {{ number_format($payment->amount, 2) }}</div>
     </div>
 
     <div class="invoice-details">
@@ -154,15 +166,15 @@
             </tr>
             <tr>
                 <td style="font-weight: bold;">Invoice Total:</td>
-                <td>UGX {{ number_format($invoice->total, 2) }}</td>
+                <td>{{ $sym }} {{ number_format($invoice->total, 2) }}</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">Total Paid:</td>
-                <td>UGX {{ number_format($invoice->amount_paid, 2) }}</td>
+                <td>{{ $sym }} {{ number_format($invoice->amount_paid, 2) }}</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">Balance Due:</td>
-                <td><strong style="color: {{ $invoice->balance > 0 ? '#dc3545' : '#28a745' }};">UGX {{ number_format($invoice->balance, 2) }}</strong></td>
+                <td><strong style="color: {{ $invoice->balance > 0 ? '#dc3545' : '#28a745' }};">{{ $sym }} {{ number_format($invoice->balance, 2) }}</strong></td>
             </tr>
             @if($shipment)
             <tr>

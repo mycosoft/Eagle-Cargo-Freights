@@ -51,15 +51,39 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="site_address">Company Address</label>
-                    <input type="text" class="form-control @error('site_address') is-invalid @enderror" 
-                           id="site_address" name="site_address" 
-                           value="{{ old('site_address', $settings['site_address'] ?? '') }}"
-                           placeholder="123 Main Street, City, Country">
-                    @error('site_address')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                    @enderror
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="site_address">Company Address</label>
+                            <input type="text" class="form-control @error('site_address') is-invalid @enderror" 
+                                   id="site_address" name="site_address" 
+                                   value="{{ old('site_address', $settings['site_address'] ?? '') }}"
+                                   placeholder="123 Main Street, City, Country">
+                            @error('site_address')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="system_currency">System Defaults Currency</label>
+                            <select class="form-control @error('system_currency') is-invalid @enderror" 
+                                    id="system_currency" name="system_currency">
+                                @php $curr = old('system_currency', $settings['system_currency'] ?? 'UGX'); @endphp
+                                <option value="UGX" {{ $curr == 'UGX' ? 'selected' : '' }}>Ugandan Shilling (UGX)</option>
+                                <option value="USD" {{ $curr == 'USD' ? 'selected' : '' }}>US Dollar (USD)</option>
+                                <option value="EUR" {{ $curr == 'EUR' ? 'selected' : '' }}>Euro (EUR)</option>
+                                <option value="GBP" {{ $curr == 'GBP' ? 'selected' : '' }}>British Pound (GBP)</option>
+                                <option value="KES" {{ $curr == 'KES' ? 'selected' : '' }}>Kenyan Shilling (KES)</option>
+                                <option value="RWF" {{ $curr == 'RWF' ? 'selected' : '' }}>Rwandan Franc (RWF)</option>
+                                <option value="TZS" {{ $curr == 'TZS' ? 'selected' : '' }}>Tanzanian Shilling (TZS)</option>
+                            </select>
+                            <small class="form-text text-muted">This currency will be used across the system for dashboards and default totals.</small>
+                            @error('system_currency')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -192,9 +216,9 @@
 @stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop

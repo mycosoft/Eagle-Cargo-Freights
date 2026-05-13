@@ -79,7 +79,7 @@
                             </td>
                             <td>{{ $client->created_at->format('M d, Y') }}</td>
                             <td>
-                                <a href="{{ url('clients/' . $client->id) }}" class="btn btn-sm btn-info">
+                                <a href="{{ url('admin/clients/' . $client->id) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i> View
                                 </a>
                             </td>
@@ -94,10 +94,10 @@
 
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
 

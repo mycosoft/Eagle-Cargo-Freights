@@ -11,6 +11,7 @@ class WhatsAppMessage extends Notification
     use Queueable;
 
     protected $subject;
+
     protected $message;
 
     /**

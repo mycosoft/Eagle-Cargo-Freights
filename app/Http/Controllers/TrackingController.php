@@ -10,6 +10,7 @@ class TrackingController extends Controller
     public function index()
     {
         $logo = \App\Models\Setting::get('site_logo');
+
         return view('tracking.index', compact('logo'));
     }
 
@@ -26,6 +27,7 @@ class TrackingController extends Controller
         }, 'client'])->where('tracking_number', $request->tracking_number)->firstOrFail();
 
         $logo = \App\Models\Setting::get('site_logo');
+
         return view('tracking.result', compact('shipment', 'logo'));
     }
 }

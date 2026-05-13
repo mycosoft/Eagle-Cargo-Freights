@@ -25,6 +25,7 @@ class UpdateBatchStatusRequest extends FormRequest
             'current_status' => 'required|in:Pending,Picked Up,In Transit,Arrived at Facility,Out for Delivery,Delivered,On Hold,Cancelled',
             'location' => 'required|string|max:255',
             'notes' => 'nullable|string',
+            'storage_fee' => 'nullable|numeric|min:0',
         ];
     }
 }

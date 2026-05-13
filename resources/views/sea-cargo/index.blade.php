@@ -8,9 +8,11 @@
             <h1><i class="fas fa-ship"></i> Sea Cargo Shipments</h1>
         </div>
         <div class="col-sm-6">
+            @can('create sea cargo')
             <a href="{{ route('admin.sea-cargo.create') }}" class="btn btn-primary float-right">
                 <i class="fas fa-plus"></i> Create Sea Shipment
             </a>
+            @endcan
         </div>
     </div>
 @stop
@@ -70,8 +72,31 @@
                                 <td><strong>{{ $shipment->tracking_number }}</strong></td>
                                 <td>{{ $shipment->client->name }}</td>
                                 <td>{{ $shipment->origin }} → {{ $shipment->destination }}</td>
-                                <td><span class="badge badge-info">{{ $shipment->delivery_range ?? 'N/A' }}</span></td>
-                                <td><span class="badge badge-secondary">{{ $shipment->current_status }}</span></td>
+                                <td>
+                                    @php
+                                        $deliveryRange = $shipment->delivery_range;
+                                        if (!$deliveryRange && $shipment->delivery_time_min && $shipment->delivery_time_max) {
+                                            $deliveryRange = $shipment->delivery_time_min . '-' . $shipment->delivery_time_max . ' ' . ($shipment->delivery_time_unit ?? 'days');
+                                        }
+                                    @endphp
+                                    <span class="badge badge-info">{{ $deliveryRange ?? 'N/A' }}</span>
+                                </td>
+                                <td>
+                                    @php
+                                        $statusBadge = match($shipment->current_status) {
+                                            'Pending'              => 'badge-secondary',
+                                            'Picked Up'            => 'badge-info',
+                                            'In Transit'           => 'badge-primary',
+                                            'Arrived at Facility'  => 'badge-indigo',
+                                            'Out for Delivery'     => 'badge-cyan',
+                                            'Delivered'            => 'badge-success',
+                                            'On Hold'              => 'badge-warning',
+                                            'Cancelled'            => 'badge-danger',
+                                            default                => 'badge-secondary',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $statusBadge }}">{{ $shipment->current_status }}</span>
+                                </td>
                                 <td>
                                     @if($shipment->batch)
                                         <span class="badge badge-primary">{{ $shipment->batch->batch_number }}</span>
@@ -83,9 +108,11 @@
                                     <a href="{{ route('admin.sea-cargo.show', $shipment) }}" class="btn btn-sm btn-info" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @can('edit sea cargo')
                                     <a href="{{ route('admin.sea-cargo.edit', $shipment) }}" class="btn btn-sm btn-warning" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
@@ -104,9 +131,9 @@
 @stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop

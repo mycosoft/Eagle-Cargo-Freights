@@ -3,82 +3,132 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    <h1>Dashboard</h1>
+    <h1>Welcome Back, {{ auth()->user()->name }}!</h1>
 @stop
 
 @section('content')
+    <!-- Cargo Type Summary -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-plane mr-2"></i>Air Cargo</h3>
+                    <div class="card-tools">
+                        <a href="{{ route('admin.air-cargo.dashboard') }}" class="btn btn-sm btn-info">Dashboard</a>
+                        <a href="{{ route('admin.air-cargo.index') }}" class="btn btn-sm btn-secondary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4 text-center">
+                            <h3 class="text-info">{{ $airCount }}</h3>
+                            <small class="text-muted">Total</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h3 class="text-warning">{{ $airInTransit }}</h3>
+                            <small class="text-muted">In Transit</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h3 class="text-success">{{ $airDelivered }}</h3>
+                            <small class="text-muted">Delivered</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-outline card-primary">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-ship mr-2"></i>Sea Cargo</h3>
+                    <div class="card-tools">
+                        <a href="{{ route('admin.sea-cargo.dashboard') }}" class="btn btn-sm btn-primary">Dashboard</a>
+                        <a href="{{ route('admin.sea-cargo.index') }}" class="btn btn-sm btn-secondary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4 text-center">
+                            <h3 class="text-info">{{ $seaCount }}</h3>
+                            <small class="text-muted">Total</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h3 class="text-warning">{{ $seaInTransit }}</h3>
+                            <small class="text-muted">In Transit</small>
+                        </div>
+                        <div class="col-4 text-center">
+                            <h3 class="text-success">{{ $seaDelivered }}</h3>
+                            <small class="text-muted">Delivered</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Statistics Cards -->
     <div class="row">
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>{{ \App\Models\Shipment::count() }}</h3>
-                    <p>Total Shipments</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-shipping-fast"></i>
-                </div>
-                <a href="{{ url('shipments') }}" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
-            </div>
-        </div>
-        <div class="col-lg-3 col-6">
             <div class="small-box bg-success">
                 <div class="inner">
-                    <h3>{{ \App\Models\Client::count() }}</h3>
+                    <h3>{{ $clientCount }}</h3>
                     <p>Total Clients</p>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <a href="{{ url('clients') }}" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <a href="{{ url('admin/clients') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <div class="col-lg-3 col-6">
             <div class="small-box bg-warning">
                 <div class="inner">
-                    <h3>{{ \App\Models\Shipment::where('current_status', 'In Transit')->count() }}</h3>
-                    <p>In Transit</p>
+                    <h3>{{ $totalShipments }}</h3>
+                    <p>All Shipments</p>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-truck"></i>
+                <div class="icon"><i class="fas fa-shipping-fast"></i></div>
+                <a href="{{ url('admin/shipments') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>{{ $batchCount }}</h3>
+                    <p>Batches / Containers</p>
                 </div>
-                <a href="{{ url('shipments?status=In Transit') }}" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
+                <div class="icon"><i class="fas fa-layer-group"></i></div>
+                <a href="{{ url('admin/batches') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
         <div class="col-lg-3 col-6">
             <div class="small-box bg-danger">
                 <div class="inner">
-                    <h3>{{ \App\Models\User::count() }}</h3>
+                    <h3>{{ $userCount }}</h3>
                     <p>System Users</p>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <a href="{{ url('admin/users') }}" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
+                <div class="icon"><i class="fas fa-user-shield"></i></div>
+                <a href="{{ url('admin/users') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
             </div>
         </div>
     </div>
 
-    <!-- Revenue Statistics Cards -->
+    <!-- Revenue -->
     <div class="row">
         <div class="col-lg-3 col-6">
-            <a href="{{ route('admin.reports.revenue') }}" style="color: inherit; text-decoration: none;">
+            <a href="{{ route('admin.air-cargo.dashboard') }}" style="color: inherit; text-decoration: none;">
                 <div class="info-box">
-                    <span class="info-box-icon bg-primary"><i class="fas fa-money-bill-wave"></i></span>
+                    <span class="info-box-icon bg-info"><i class="fas fa-plane"></i></span>
                     <div class="info-box-content">
-                        <span class="info-box-text">Total Revenue</span>
-                        @php
-                            $totalRevenue = \App\Models\Payment::sum('amount');
-                        @endphp
-                        <span class="info-box-number">UGX {{ number_format($totalRevenue, 0) }}</span>
+                        <span class="info-box-text">Air Cargo Revenue</span>
+                        <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol() }} {{ number_format($airRevenue, 0) }}</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6">
+            <a href="{{ route('admin.sea-cargo.dashboard') }}" style="color: inherit; text-decoration: none;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-primary"><i class="fas fa-ship"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Sea Cargo Revenue</span>
+                        <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol() }} {{ number_format($seaRevenue, 0) }}</span>
                     </div>
                 </div>
             </a>
@@ -89,28 +139,7 @@
                     <span class="info-box-icon bg-success"><i class="fas fa-calendar-check"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Monthly Revenue</span>
-                        @php
-                            $monthlyRevenue = \App\Models\Payment::whereYear('payment_date', now()->year)
-                                ->whereMonth('payment_date', now()->month)
-                                ->sum('amount');
-                        @endphp
-                        <span class="info-box-number">UGX {{ number_format($monthlyRevenue, 0) }}</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-lg-3 col-6">
-            <a href="{{ route('admin.reports.outstanding') }}" style="color: inherit; text-decoration: none;">
-                <div class="info-box">
-                    <span class="info-box-icon bg-warning"><i class="fas fa-exclamation-triangle"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Outstanding Balance</span>
-                        @php
-                            $outstanding = \App\Models\Invoice::where('status', '!=', 'paid')
-                                ->where('status', '!=', 'cancelled')
-                                ->sum(\DB::raw('total - (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE payments.invoice_id = invoices.id)'));
-                        @endphp
-                        <span class="info-box-number">UGX {{ number_format($outstanding, 0) }}</span>
+                        <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol() }} {{ number_format($monthlyRevenue, 0) }}</span>
                     </div>
                 </div>
             </a>
@@ -121,9 +150,6 @@
                     <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Paid Invoices</span>
-                        @php
-                            $paidInvoices = \App\Models\Invoice::where('status', 'paid')->count();
-                        @endphp
                         <span class="info-box-number">{{ $paidInvoices }}</span>
                     </div>
                 </div>
@@ -131,21 +157,18 @@
         </div>
     </div>
 
-    <!-- Charts Row -->
+    <!-- Charts -->
     <div class="row">
-        <!-- Shipment Status Pie Chart -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Shipments by Status</h3>
+                    <h3 class="card-title">Air vs Sea Status</h3>
                 </div>
                 <div class="card-body">
-                    <canvas id="statusPieChart" style="height: 300px;"></canvas>
+                    <canvas id="cargoStatusChart" style="height: 300px;"></canvas>
                 </div>
             </div>
         </div>
-
-        <!-- Monthly Shipments Line Chart -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
@@ -163,7 +186,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Recent Shipments</h3>
+                    <h3 class="card-title"><i class="fas fa-plane"></i> Recent Air Shipments</h3>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-striped">
@@ -172,31 +195,14 @@
                                 <th>Tracking #</th>
                                 <th>Client</th>
                                 <th>Status</th>
-                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(\App\Models\Shipment::with('client')->latest()->take(5)->get() as $shipment)
+                            @foreach($recentAir as $s)
                                 <tr>
-                                    <td><a href="{{ url('shipments/' . $shipment->id) }}">{{ $shipment->tracking_number }}</a></td>
-                                    <td>{{ $shipment->client->name }}</td>
-                                    <td>
-                                        @php
-                                            $statusColors = [
-                                                'Pending' => 'warning',
-                                                'Picked Up' => 'info',
-                                                'In Transit' => 'primary',
-                                                'Arrived at Facility' => 'secondary',
-                                                'Out for Delivery' => 'info',
-                                                'Delivered' => 'success',
-                                                'On Hold' => 'dark',
-                                                'Cancelled' => 'danger'
-                                            ];
-                                            $badgeClass = $statusColors[$shipment->current_status] ?? 'secondary';
-                                        @endphp
-                                        <span class="badge badge-{{ $badgeClass }}">{{ $shipment->current_status }}</span>
-                                    </td>
-                                    <td>{{ $shipment->created_at->format('M d, Y') }}</td>
+                                    <td><a href="{{ route('admin.air-cargo.show', $s) }}">{{ $s->tracking_number }}</a></td>
+                                    <td>{{ $s->client->name ?? 'N/A' }}</td>
+                                    <td><span class="badge badge-info">{{ $s->current_status }}</span></td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -204,29 +210,26 @@
                 </div>
             </div>
         </div>
-
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Recent Clients</h3>
+                    <h3 class="card-title"><i class="fas fa-ship"></i> Recent Sea Shipments</h3>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Joined</th>
+                                <th>Tracking #</th>
+                                <th>Client</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(\App\Models\Client::latest()->take(5)->get() as $client)
+                            @foreach($recentSea as $s)
                                 <tr>
-                                    <td><a href="{{ url('clients/' . $client->id) }}">{{ $client->name }}</a></td>
-                                    <td>{{ $client->email }}</td>
-                                    <td>{{ $client->phone }}</td>
-                                    <td>{{ $client->created_at->format('M d, Y') }}</td>
+                                    <td><a href="{{ route('admin.sea-cargo.show', $s) }}">{{ $s->tracking_number }}</a></td>
+                                    <td>{{ $s->client->name ?? 'N/A' }}</td>
+                                    <td><span class="badge badge-primary">{{ $s->current_status }}</span></td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -240,24 +243,15 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Quick Actions</h3>
-                </div>
+                <div class="card-header"><h3 class="card-title">Quick Actions</h3></div>
                 <div class="card-body">
-                    <a href="{{ url('clients/create') }}" class="btn btn-success">
-                        <i class="fas fa-user-plus"></i> Add Client
-                    </a>
-                    <a href="{{ url('shipments/create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Shipment
-                    </a>
-                    @can('manage users')
-                        <a href="{{ url('admin/users/create') }}" class="btn btn-warning">
-                            <i class="fas fa-user-plus"></i> Add User
-                        </a>
-                    @endcan
-                    <a href="{{ url('admin/reports') }}" class="btn btn-info">
-                        <i class="fas fa-chart-bar"></i> View Reports
-                    </a>
+                    <a href="{{ route('admin.air-cargo.create') }}" class="btn btn-info"><i class="fas fa-plane"></i> New Air Shipment</a>
+                    <a href="{{ route('admin.sea-cargo.create') }}" class="btn btn-primary"><i class="fas fa-ship"></i> New Sea Shipment</a>
+                    <a href="{{ route('admin.air-cargo.dashboard') }}" class="btn btn-info"><i class="fas fa-tachometer-alt"></i> Air Dashboard</a>
+                    <a href="{{ route('admin.sea-cargo.dashboard') }}" class="btn btn-primary"><i class="fas fa-tachometer-alt"></i> Sea Dashboard</a>
+                    <a href="{{ url('admin/clients/create') }}" class="btn btn-success"><i class="fas fa-user-plus"></i> Add Client</a>
+                    <a href="{{ url('admin/users/create') }}" class="btn btn-warning"><i class="fas fa-user-plus"></i> Add User</a>
+                    <a href="{{ url('admin/reports') }}" class="btn btn-secondary"><i class="fas fa-chart-bar"></i> Reports</a>
                 </div>
             </div>
         </div>
@@ -265,124 +259,76 @@
 @stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
-
-
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Shipment Status Pie Chart
-const statusCtx = document.getElementById('statusPieChart').getContext('2d');
-const statusData = {
-    labels: ['Pending', 'In Transit', 'Delivered', 'On Hold', 'Cancelled'],
-    datasets: [{
-        data: [
-            {{ \App\Models\Shipment::where('current_status', 'Pending')->count() }},
-            {{ \App\Models\Shipment::where('current_status', 'In Transit')->count() }},
-            {{ \App\Models\Shipment::where('current_status', 'Delivered')->count() }},
-            {{ \App\Models\Shipment::where('current_status', 'On Hold')->count() }},
-            {{ \App\Models\Shipment::where('current_status', 'Cancelled')->count() }}
-        ],
-        backgroundColor: [
-            '#ffc107',
-            '#007bff',
-            '#28a745',
-            '#6c757d',
-            '#dc3545'
-        ]
-    }]
-};
-
-new Chart(statusCtx, {
-    type: 'pie',
-    data: statusData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
-    }
-});
-
-// Monthly Shipments Line Chart
-const monthlyCtx = document.getElementById('monthlyLineChart').getContext('2d');
-
-// Generate last 6 months labels
-const monthLabels = [];
-const monthData = [];
-const today = new Date();
-
-for (let i = 5; i >= 0; i--) {
-    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-    const monthName = date.toLocaleString('default', { month: 'short', year: 'numeric' });
-    monthLabels.push(monthName);
+var cargoCtx = document.getElementById('cargoStatusChart');
+if (cargoCtx) {
+    new Chart(cargoCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Pending', 'In Transit', 'Delivered', 'On Hold'],
+            datasets: [
+                {
+                    label: 'Air Cargo',
+                    data: [{{ \App\Models\Shipment::where('shipment_type','air')->where('current_status','Pending')->count() }}, {{ $airInTransit }}, {{ $airDelivered }}, {{ \App\Models\Shipment::where('shipment_type','air')->whereIn('current_status',['On Hold','Cancelled'])->count() }}],
+                    backgroundColor: 'rgba(23, 162, 184, 0.8)',
+                    borderColor: 'rgba(23, 162, 184, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Sea Cargo',
+                    data: [{{ \App\Models\Shipment::where('shipment_type','sea')->where('current_status','Pending')->count() }}, {{ $seaInTransit }}, {{ $seaDelivered }}, {{ \App\Models\Shipment::where('shipment_type','sea')->whereIn('current_status',['On Hold','Cancelled'])->count() }}],
+                    backgroundColor: 'rgba(0, 123, 255, 0.8)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
 }
 
-// Get shipment counts from PHP
-@php
-    $monthlyCounts = [];
-    for ($i = 5; $i >= 0; $i--) {
-        $date = now()->subMonths($i);
-        $count = \App\Models\Shipment::whereYear('created_at', $date->year)
-            ->whereMonth('created_at', $date->month)
-            ->count();
-        $monthlyCounts[] = $count;
+var monthlyCtx = document.getElementById('monthlyLineChart');
+if (monthlyCtx) {
+    var monthLabels = [];
+    var today = new Date();
+    for (var i = 5; i >= 0; i--) {
+        var d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        monthLabels.push(d.toLocaleString('default', { month: 'short', year: 'numeric' }));
     }
-@endphp
-
-const shipmentCounts = {!! json_encode($monthlyCounts) !!};
-
-const monthlyData = {
-    labels: monthLabels,
-    datasets: [{
-        label: 'Shipments',
-        data: shipmentCounts,
-        borderColor: '#007bff',
-        backgroundColor: 'rgba(0, 123, 255, 0.1)',
-        tension: 0.4,
-        fill: true
-    }]
-};
-
-new Chart(monthlyCtx, {
-    type: 'line',
-    data: monthlyData,
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: monthLabels,
+            datasets: [
+                {
+                    label: 'Air',
+                    data: {!! json_encode($airMonthly) !!},
+                    borderColor: '#17a2b8',
+                    backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Sea',
+                    data: {!! json_encode($seaMonthly) !!},
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    tension: 0.4,
+                    fill: true
                 }
-            }
+            ]
         },
-        plugins: {
-            legend: {
-                display: false
-            }
-        }
-    }
-});
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+}
 </script>
 @stop
-
-
-@section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
-    All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
-    </div>
-@stop
-

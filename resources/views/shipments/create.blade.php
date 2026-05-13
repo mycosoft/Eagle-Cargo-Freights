@@ -35,18 +35,14 @@
                     
                     <!-- Basic Information Tab -->
                     <div class="tab-pane fade show active" id="basic" role="tabpanel">
+
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="client_id">Client <span class="text-danger">*</span></label>
-                                    <select name="client_id" id="client_id" class="form-control @error('client_id') is-invalid @enderror" required>
-                                        <option value="">Select Client</option>
-                                        @foreach($clients as $client)
-                                            <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
-                                                {{ $client->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                <div class="form-group" style="position: relative;">
+                                    <label for="client_search">Client <span class="text-danger">*</span></label>
+                                    <input type="text" id="client_search" class="form-control" placeholder="Search client by name, email, phone..." autocomplete="off">
+                                    <input type="hidden" name="client_id" id="client_id" value="{{ old('client_id') }}" required>
+                                    <div id="client_results" class="list-group shadow" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; max-height: 250px; overflow-y: auto; display: none;"></div>
                                     @error('client_id')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -106,6 +102,7 @@
                                         <option value="Pending" {{ old('current_status', 'Pending') == 'Pending' ? 'selected' : '' }}>Pending</option>
                                         <option value="Picked Up" {{ old('current_status') == 'Picked Up' ? 'selected' : '' }}>Picked Up</option>
                                         <option value="In Transit" {{ old('current_status') == 'In Transit' ? 'selected' : '' }}>In Transit</option>
+                                        <option value="At Warehouse in China" {{ old('current_status') == 'At Warehouse in China' ? 'selected' : '' }}>At Warehouse in China</option>
                                         <option value="Arrived at Facility" {{ old('current_status') == 'Arrived at Facility' ? 'selected' : '' }}>Arrived at Facility</option>
                                         <option value="Out for Delivery" {{ old('current_status') == 'Out for Delivery' ? 'selected' : '' }}>Out for Delivery</option>
                                         <option value="Delivered" {{ old('current_status') == 'Delivered' ? 'selected' : '' }}>Delivered</option>
@@ -119,6 +116,10 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
+                                    <label for="china_warehouse_date">Date Received at China Warehouse</label>
+                                    <input type="date" name="china_warehouse_date" id="china_warehouse_date" class="form-control" value="{{ old('china_warehouse_date') }}">
+                                </div>
+                            </div>
                                     <label for="expected_delivery_date">Expected Delivery</label>
                                     <input type="date" name="expected_delivery_date" id="expected_delivery_date" class="form-control @error('expected_delivery_date') is-invalid @enderror" value="{{ old('expected_delivery_date') }}">
                                     @error('expected_delivery_date')
@@ -203,6 +204,32 @@
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <hr>
+                        <h5 class="mb-3">Package Items</h5>
+                        <p class="text-muted">Add individual packages with descriptions (optional)</p>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="packagesTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="25%">Description</th>
+                                        <th width="10%">Qty</th>
+                                        <th width="12%">Length (cm)</th>
+                                        <th width="12%">Width (cm)</th>
+                                        <th width="12%">Height (cm)</th>
+                                        <th width="12%">Weight (kg)</th>
+                                        <th width="5%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="packagesBody">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-success mb-3" id="addPackage">
+                            <i class="fas fa-plus"></i> Add Package
+                        </button>
                     </div>
 
                     <!-- Sender & Receiver Tab -->
@@ -296,10 +323,10 @@
                                 <div class="form-group">
                                     <label for="currency">Currency</label>
                                     <select name="currency" id="currency" class="form-control @error('currency') is-invalid @enderror">
-                                        <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD ($)</option>
-                                        <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
-                                        <option value="GBP" {{ old('currency') == 'GBP' ? 'selected' : '' }}>GBP (£)</option>
-                                        <option value="UGX" {{ old('currency') == 'UGX' ? 'selected' : '' }}>UGX (Shs)</option>
+                                        <option value="USD" {{ old('currency', 'USD') == 'USD' ? 'selected' : '' }}>USD ($)</option>
+                                        <option value="EUR" {{ old('currency', 'USD') == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
+                                        <option value="GBP" {{ old('currency', 'USD') == 'GBP' ? 'selected' : '' }}>GBP (£)</option>
+                                        <option value="UGX" {{ old('currency', 'USD') == 'UGX' ? 'selected' : '' }}>UGX (Shs)</option>
                                     </select>
                                     @error('currency')
                                         <span class="invalid-feedback">{{ $message }}</span>
@@ -321,25 +348,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="lineItemsBody">
-                                    <tr class="line-item-row">
-                                        <td>
-                                            <input type="text" name="items[0][description]" class="form-control" placeholder="E.g., Standard Shipping" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" name="items[0][quantity]" class="form-control item-quantity" value="1" min="1" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" step="0.01" name="items[0][rate]" class="form-control item-rate" placeholder="0.00" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" step="0.01" name="items[0][amount]" class="form-control item-amount" placeholder="0.00" readonly>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-danger remove-item" disabled>
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -513,6 +521,58 @@
 
 @section('js')
 <script>
+const clientSearchInput = document.getElementById('client_search');
+const clientResults = document.getElementById('client_results');
+const clientIdInput = document.getElementById('client_id');
+let searchTimeout;
+
+if (clientSearchInput) {
+    clientSearchInput.addEventListener('input', function() {
+        const query = this.value;
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 1) {
+            clientResults.style.display = 'none';
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            fetch('{{ route("admin.clients.search") }}?q=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(clients => {
+                    if (clients.length > 0) {
+                        clientResults.innerHTML = clients.map(client => 
+                            `<a href="#" class="list-group-item list-group-item-action" data-id="${client.id}" data-name="${client.name}">
+                                <strong>${client.name}</strong>
+                                <small class="text-muted">${client.email || ''} ${client.company ? '- ' + client.company : ''}</small>
+                            </a>`
+                        ).join('');
+                        clientResults.style.display = 'block';
+                    } else {
+                        clientResults.innerHTML = '<div class="list-group-item">No clients found</div>';
+                        clientResults.style.display = 'block';
+                    }
+                });
+        }, 100);
+    });
+
+    clientResults.addEventListener('click', function(e) {
+        const item = e.target.closest('a');
+        if (item) {
+            e.preventDefault();
+            clientIdInput.value = item.dataset.id;
+            clientSearchInput.value = item.dataset.name;
+            clientResults.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!clientSearchInput.contains(e.target) && !clientResults.contains(e.target)) {
+            clientResults.style.display = 'none';
+        }
+    });
+}
+
 // Show/hide customs fields based on international checkbox
 document.getElementById('is_international').addEventListener('change', function() {
     document.getElementById('customs-fields').style.display = this.checked ? 'block' : 'none';
@@ -550,7 +610,7 @@ receiverIdSelect.addEventListener('change', function() {
 });
 
 // Line Items Management
-let itemIndex = 1;
+let itemIndex = 0;
 
 // Add new line item
 document.getElementById('addLineItem').addEventListener('click', function() {
@@ -558,7 +618,17 @@ document.getElementById('addLineItem').addEventListener('click', function() {
     const newRow = `
         <tr class="line-item-row">
             <td>
-                <input type="text" name="items[${itemIndex}][description]" class="form-control" placeholder="E.g., Insurance Coverage" required>
+                <select name="items[${itemIndex}][description]" class="form-control" required>
+                    <option value="">Select Item</option>
+                    <option value="Freight Charges">Freight Charges</option>
+                    <option value="House Bill">House Bill</option>
+                    <option value="COC Charges (PIVOC)">COC Charges (PIVOC)</option>
+                    <option value="Freight MBS to KLA">Freight MBS to KLA</option>
+                    <option value="Storage Bill">Storage Bill</option>
+                    <option value="Handling Fee">Handling Fee</option>
+                    <option value="Customs Fee">Customs Fee</option>
+                    <option value="Other">Other</option>
+                </select>
             </td>
             <td>
                 <input type="number" name="items[${itemIndex}][quantity]" class="form-control item-quantity" value="1" min="1" required>
@@ -592,12 +662,53 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Update remove button states
+// ========== PACKAGES MANAGEMENT ==========
+let packageIndex = 0;
+
+document.getElementById('addPackage').addEventListener('click', function() {
+    const tbody = document.getElementById('packagesBody');
+    const newRow = `
+        <tr class="package-row">
+            <td>
+                <input type="text" name="packages[${packageIndex}][description]" class="form-control form-control-sm" placeholder="Package description">
+            </td>
+            <td>
+                <input type="number" name="packages[${packageIndex}][quantity]" class="form-control form-control-sm" value="1" min="1">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][length]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][width]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][height]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="packages[${packageIndex}][weight]" class="form-control form-control-sm" placeholder="0">
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-danger remove-package"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRow);
+    packageIndex++;
+});
+
+// Remove package
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-package')) {
+        const row = e.target.closest('tr');
+        row.remove();
+    }
+});
+
 function updateRemoveButtons() {
     const rows = document.querySelectorAll('.line-item-row');
     const removeButtons = document.querySelectorAll('.remove-item');
     removeButtons.forEach((btn, index) => {
-        btn.disabled = rows.length === 1;
+        btn.disabled = false;
     });
 }
 
@@ -661,10 +772,10 @@ updateRemoveButtons();
 
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
 

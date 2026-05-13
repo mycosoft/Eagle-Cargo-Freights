@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\ShipmentStatusUpdatedMail;
 use App\Models\Shipment;
 use App\Models\ShipmentStatusUpdate;
-use App\Mail\ShipmentStatusUpdatedMail;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
@@ -21,7 +21,7 @@ class NotificationService
                 Mail::to($shipment->client->email)->send(new ShipmentStatusUpdatedMail($shipment, $statusUpdate));
                 Log::info("Email sent to {$shipment->client->email} for shipment {$shipment->tracking_number}");
             } catch (\Exception $e) {
-                Log::error("Failed to send email: " . $e->getMessage());
+                Log::error('Failed to send email: '.$e->getMessage());
             }
         }
 

@@ -36,11 +36,13 @@ class StoreBatchRequest extends FormRequest
             'shipments.*.weight' => 'nullable|numeric|min:0',
             'shipments.*.num_packages' => 'nullable|integer|min:1',
             'shipments.*.package_type' => 'nullable|in:box,pallet,envelope,custom',
-            'shipments.*.cbm' => 'nullable|numeric|min:0', // Added CBM validation
+            'shipments.*.length' => 'nullable|numeric|min:0',
+            'shipments.*.width' => 'nullable|numeric|min:0',
+            'shipments.*.height' => 'nullable|numeric|min:0',
+            'shipments.*.cbm' => 'nullable|numeric|min:0',
             'shipments.*.fragile' => 'nullable|boolean',
             'shipments.*.shipping_cost' => 'nullable|numeric|min:0',
             'shipments.*.tax' => 'nullable|numeric|min:0',
-            'shipments.*.discount' => 'nullable|numeric|min:0',
             'shipments.*.payment_status' => 'nullable|in:pending,paid,refunded',
             'shipments.*.description' => 'nullable|string',
         ];

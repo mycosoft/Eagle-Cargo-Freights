@@ -33,7 +33,7 @@
             </p>
         </div>
         <div class="footer">
-            <p>&copy; {{ date('Y') }} Bryanz Logistics. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Eagle Cargo Freights. All rights reserved.</p>
         </div>
     </div>
 </body>

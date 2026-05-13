@@ -22,7 +22,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Bryanz Logistics</h1>
+        <h1>Eagle Cargo Freights</h1>
         <p>Clients Report</p>
         <p>Generated on: {{ date('F d, Y H:i') }}</p>
     </div>
@@ -68,7 +68,7 @@
     </table>
 
     <div class="footer">
-        <p>&copy; {{ date('Y') }} Bryanz Logistics. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} Eagle Cargo Freights. All rights reserved.</p>
     </div>
 </body>
 </html>

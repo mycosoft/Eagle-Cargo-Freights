@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Bryan Logistics</title>
+    <title>Login - Eagle Cargo Freights</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,17 +11,20 @@
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
         }
-        .bg-navy-900 {
-            background-color: #0a192f;
+        .bg-purple-900 {
+            background-color: #4b0a82;
         }
-        .text-navy-900 {
-            color: #0a192f;
+        .text-purple-900 {
+            color: #4b0a82;
         }
-        .bg-navy-800 {
-            background-color: #112240;
+        .hover\:bg-purple-800:hover {
+            background-color: #3d0769;
         }
-        .hover\:bg-navy-800:hover {
-            background-color: #112240;
+        .focus\:ring-purple-900:focus {
+            --tw-ring-color: #4b0a82;
+        }
+        .focus\:border-purple-900:focus {
+            border-color: #4b0a82;
         }
     </style>
 </head>
@@ -31,7 +34,7 @@
         <div class="text-center">
             <div class="flex justify-center mb-6">
                 <!-- Assuming logo is in public/images/logo.png -->
-                <img src="{{ asset('images/logo.png') }}" alt="Bryanz Logistics Logo" class="h-40 w-auto object-contain">
+                <img src="{{ asset('images/logo.jpeg') }}" alt="Eagle Cargo Freights Logo" class="h-40 w-auto object-contain">
             </div>
             <h2 class="text-3xl font-bold text-gray-900">
                 Welcome Back
@@ -65,7 +68,7 @@
                         required 
                         autofocus 
                         autocomplete="username"
-                        class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-navy-900 focus:border-navy-900 sm:text-sm @error('email') border-red-500 @enderror"
+                        class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-900 focus:border-purple-900 sm:text-sm @error('email') border-red-500 @enderror"
                         placeholder="Enter your email address"
                     >
                 </div>
@@ -86,7 +89,7 @@
                         name="password" 
                         required 
                         autocomplete="current-password"
-                        class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-navy-900 focus:border-navy-900 sm:text-sm @error('password') border-red-500 @enderror"
+                        class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-900 focus:border-purple-900 sm:text-sm @error('password') border-red-500 @enderror"
                         placeholder="••••••••"
                     >
                 </div>
@@ -102,7 +105,7 @@
                         id="remember_me" 
                         type="checkbox" 
                         name="remember"
-                        class="h-4 w-4 text-navy-900 focus:ring-navy-900 border-gray-300 rounded"
+                        class="h-4 w-4 text-purple-900 focus:ring-purple-900 border-gray-300 rounded"
                     >
                     <label for="remember_me" class="ml-2 block text-sm text-gray-900">
                         Remember me
@@ -111,7 +114,7 @@
 
                 @if (Route::has('password.request'))
                     <div class="text-sm">
-                        <a href="{{ route('password.request') }}" class="font-medium text-navy-900 hover:text-navy-800">
+                        <a href="{{ route('password.request') }}" class="font-medium text-purple-900 hover:text-purple-800">
                             Forgot your password?
                         </a>
                     </div>
@@ -122,8 +125,7 @@
             <div>
                 <button 
                     type="submit"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-navy-900 hover:bg-navy-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy-900 transition duration-150 ease-in-out"
-                    style="background-color: #0a192f;"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-900 hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-900 transition duration-150 ease-in-out"
                 >
                     Sign in
                 </button>
@@ -133,7 +135,7 @@
         <!-- Footer -->
         <div class="mt-6 text-center">
             <p class="text-xs text-gray-500">
-                &copy; {{ date('Y') }} Bryanz Logistics. All rights reserved.
+                &copy; {{ date('Y') }} Eagle Cargo Freights. All rights reserved.
             </p>
         </div>
     </div>

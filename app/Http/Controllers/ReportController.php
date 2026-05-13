@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Payment;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -134,16 +135,100 @@ class ReportController extends Controller
 
         // Search filter
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%')
-                  ->orWhere('phone', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%')
+                    ->orWhere('phone', 'like', '%'.$request->search.'%');
             });
         }
 
         $clients = $query->latest()->paginate(50);
 
         return view('reports.clients', compact('clients'));
+    }
+
+    /**
+     * Batch revenue report
+     */
+    public function batchRevenue(Request $request)
+    {
+        $query = \App\Models\ShipmentBatch::with(['creator', 'shipments.client']);
+
+        // Date filters
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Cargo type filter
+        if ($request->filled('cargo_type')) {
+            $query->where('cargo_type', $request->cargo_type);
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('current_status', $request->status);
+        }
+
+        $batches = $query->latest()->paginate(50);
+
+        // Calculate total revenue across all filtered batches
+        $totalRevenue = 0;
+        $totalInvoiced = 0;
+        $totalOutstanding = 0;
+
+        foreach ($batches->items() as $batch) {
+            $totalRevenue += $batch->revenue;
+            $totalInvoiced += $batch->invoiced_amount;
+            $totalOutstanding += $batch->outstanding_amount;
+        }
+
+        return view('reports.batch-revenue', compact('batches', 'totalRevenue', 'totalInvoiced', 'totalOutstanding'));
+    }
+
+    /**
+     * Expenses report
+     */
+    public function expenses(Request $request)
+    {
+        $query = \App\Models\Expense::with(['category', 'recorder']);
+
+        // Date filters
+        if ($request->filled('date_from')) {
+            $query->whereDate('expense_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('expense_date', '<=', $request->date_to);
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Category filter
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $expenses = $query->latest('expense_date')->paginate(50);
+
+        // Calculate totals by category
+        $categoryTotals = \App\Models\Expense::query()
+            ->when($request->filled('date_from'), fn ($q) => $q->whereDate('expense_date', '>=', $request->date_from))
+            ->when($request->filled('date_to'), fn ($q) => $q->whereDate('expense_date', '<=', $request->date_to))
+            ->where('status', '!=', 'rejected')
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
+            ->with('category')
+            ->get()
+            ->pluck('total', 'category.name');
+
+        $totalExpenses = $categoryTotals->sum();
+
+        return view('reports.expenses', compact('expenses', 'categoryTotals', 'totalExpenses'));
     }
 
     /**
@@ -158,10 +243,10 @@ class ReportController extends Controller
             'monthlyRevenue' => \App\Models\Payment::whereYear('payment_date', now()->year)
                 ->whereMonth('payment_date', now()->month)
                 ->sum('amount'),
-            'shipmentsByStatus' => \App\Models\Shipment::select('current_status', \DB::raw('count(*) as total'))
+            'shipmentsByStatus' => \App\Models\Shipment::select('current_status', DB::raw('count(*) as total'))
                 ->groupBy('current_status')
                 ->get(),
-            'shipmentsByType' => \App\Models\Shipment::select('shipment_type', \DB::raw('count(*) as total'))
+            'shipmentsByType' => \App\Models\Shipment::select('shipment_type', DB::raw('count(*) as total'))
                 ->groupBy('shipment_type')
                 ->get(),
         ];
@@ -176,7 +261,8 @@ class ReportController extends Controller
     {
         $shipments = \App\Models\Shipment::with(['client', 'batch'])->latest()->get();
         $pdf = Pdf::loadView('reports.shipments-pdf', compact('shipments'));
-        return $pdf->download('shipments-report-' . date('Y-m-d') . '.pdf');
+
+        return $pdf->download('shipments-report-'.date('Y-m-d').'.pdf');
     }
 
     /**
@@ -186,6 +272,7 @@ class ReportController extends Controller
     {
         $clients = \App\Models\Client::withCount('shipments')->latest()->get();
         $pdf = Pdf::loadView('reports.clients-pdf', compact('clients'));
-        return $pdf->download('clients-report-' . date('Y-m-d') . '.pdf');
+
+        return $pdf->download('clients-report-'.date('Y-m-d').'.pdf');
     }
 }

@@ -55,7 +55,7 @@ class SendBatchShipmentNotificationJob implements ShouldQueue
 
     /**
      * Execute the job.
-     * 
+     *
      * This job is rate-limited to prevent WhatsApp account bans
      * when sending bulk notifications for batch status updates.
      */
@@ -63,8 +63,9 @@ class SendBatchShipmentNotificationJob implements ShouldQueue
     {
         try {
             // Check if client exists and has notification preferences
-            if (!$this->shipment->client) {
+            if (! $this->shipment->client) {
                 Log::warning("[Batch Notification] Shipment {$this->shipment->tracking_number} has no client assigned");
+
                 return;
             }
 
@@ -76,8 +77,8 @@ class SendBatchShipmentNotificationJob implements ShouldQueue
             Log::info("[Batch Notification] Successfully sent notification for shipment: {$this->shipment->tracking_number}");
 
         } catch (\Exception $e) {
-            Log::error("[Batch Notification] Failed to send notification for shipment {$this->shipment->tracking_number}: " . $e->getMessage());
-            
+            Log::error("[Batch Notification] Failed to send notification for shipment {$this->shipment->tracking_number}: ".$e->getMessage());
+
             // Rethrow to trigger retry mechanism
             throw $e;
         }
@@ -88,6 +89,6 @@ class SendBatchShipmentNotificationJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error("[Batch Notification] Job permanently failed for shipment {$this->shipment->tracking_number}: " . $exception->getMessage());
+        Log::error("[Batch Notification] Job permanently failed for shipment {$this->shipment->tracking_number}: ".$exception->getMessage());
     }
 }

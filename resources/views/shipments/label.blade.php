@@ -52,7 +52,7 @@
 <body onload="window.print()">
     <div class="label-container">
         <div class="header">
-            <h1>BRYANZ LOGISTICS</h1>
+            <h1>EAGLE CARGO FREIGHTS</h1>
             <p>Express Delivery</p>
         </div>
         
@@ -82,7 +82,7 @@
         </div>
         
         <div class="footer">
-            Thank you for choosing Bryanz Logistics
+            Thank you for choosing Eagle Cargo Freights
         </div>
     </div>
 </body>

@@ -20,13 +20,40 @@
                 <div class="form-group">
                     <label>Permissions</label>
                     <div class="row">
-                        @foreach($permissions as $permission)
-                            <div class="col-md-3">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" class="custom-control-input" id="perm_{{ $permission->id }}">
-                                    <label class="custom-control-label" for="perm_{{ $permission->id }}">{{ $permission->name }}</label>
+                        @php
+                            $groupedPermissions = [
+                                'Clients' => $permissions->filter(fn($p) => str_contains($p->name, 'clients')),
+                                'Shipments' => $permissions->filter(fn($p) => str_contains($p->name, 'shipments')),
+                                'Air Cargo' => $permissions->filter(fn($p) => str_contains($p->name, 'air cargo')),
+                                'Sea Cargo' => $permissions->filter(fn($p) => str_contains($p->name, 'sea cargo')),
+                                'Batches' => $permissions->filter(fn($p) => str_contains($p->name, 'batches')),
+                                'Invoices' => $permissions->filter(fn($p) => str_contains($p->name, 'invoices')),
+                                'Payments' => $permissions->filter(fn($p) => str_contains($p->name, 'payments')),
+                                'Expenses' => $permissions->filter(fn($p) => str_contains($p->name, 'expenses') && !str_contains($p->name, 'categories')),
+                                'Expense Categories' => $permissions->filter(fn($p) => str_contains($p->name, 'expense categories')),
+                                'Transactions' => $permissions->filter(fn($p) => str_contains($p->name, 'transactions')),
+                                'Reports' => $permissions->filter(fn($p) => str_contains($p->name, 'reports') || str_contains($p->name, 'outstanding balance') || str_contains($p->name, 'paid invoices')),
+                                'Users' => $permissions->filter(fn($p) => str_contains($p->name, 'users')),
+                                'Roles' => $permissions->filter(fn($p) => str_contains($p->name, 'roles')),
+                                'Notifications' => $permissions->filter(fn($p) => str_contains($p->name, 'notifications') || str_contains($p->name, 'bulk messages') || str_contains($p->name, 'broadcast')),
+                                'Settings & Tracking' => $permissions->filter(fn($p) => str_contains($p->name, 'settings') || str_contains($p->name, 'tracking') || str_contains($p->name, 'status updates')),
+                            ];
+                        @endphp
+
+                        @foreach($groupedPermissions as $groupName => $groupPermissions)
+                            @if($groupPermissions->count() > 0)
+                                <div class="col-12 mt-3">
+                                    <h6><i class="fas fa-folder-open"></i> {{ ucfirst($groupName) }}</h6>
                                 </div>
-                            </div>
+                                @foreach($groupPermissions as $permission)
+                                    <div class="col-md-3">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" class="custom-control-input" id="perm_{{ $permission->id }}">
+                                            <label class="custom-control-label" for="perm_{{ $permission->id }}">{{ $permission->name }}</label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -42,10 +69,10 @@
 
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
 

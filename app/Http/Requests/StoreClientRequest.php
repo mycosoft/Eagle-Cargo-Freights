@@ -22,7 +22,7 @@ class StoreClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', 'unique:clients,name'],
             'email' => ['required', 'email', 'unique:clients,email'],
             'phone' => ['required', 'string', 'max:20'],
             'company' => ['nullable', 'string', 'max:255'],

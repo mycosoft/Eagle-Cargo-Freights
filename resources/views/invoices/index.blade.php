@@ -41,6 +41,7 @@
                                     <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                                     <option value="sent" {{ request('status') == 'sent' ? 'selected' : '' }}>Sent</option>
                                     <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                    <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial</option>
                                     <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue</option>
                                     <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                 </select>
@@ -97,29 +98,30 @@
                 </thead>
                 <tbody>
                     @forelse($invoices as $invoice)
-                        <tr>
+                        <tr class="{{ $invoice->status === 'overdue' ? 'text-danger font-weight-bold' : '' }}">
                             <td>
-                                <a href="{{ route('admin.invoices.show', $invoice) }}">
+                                <a href="{{ route('admin.invoices.show', $invoice) }}" class="{{ $invoice->status === 'overdue' ? 'text-danger' : '' }}">
                                     <strong>{{ $invoice->invoice_number }}</strong>
                                 </a>
                             </td>
                             <td>
-                                <a href="{{ route('admin.shipments.show', $invoice->shipment) }}">
+                                <a href="{{ route('admin.shipments.show', $invoice->shipment) }}" class="{{ $invoice->status === 'overdue' ? 'text-danger' : '' }}">
                                     {{ $invoice->shipment->tracking_number }}
                                 </a>
                             </td>
                             <td>{{ $invoice->shipment->client->name }}</td>
                             <td>{{ $invoice->issue_date->format('M d, Y') }}</td>
                             <td>{{ $invoice->due_date ? $invoice->due_date->format('M d, Y') : 'N/A' }}</td>
-                            <td>{{ $invoice->shipment->currency ?? 'USD' }} {{ number_format($invoice->total, 2) }}</td>
-                            <td>{{ $invoice->shipment->currency ?? 'USD' }} {{ number_format($invoice->amount_paid, 2) }}</td>
-                            <td>{{ $invoice->shipment->currency ?? 'USD' }} {{ number_format($invoice->balance, 2) }}</td>
+                            <td>{{ \App\Models\Setting::getCurrencySymbol($invoice->shipment->currency ?? null) }} {{ number_format($invoice->total, 2) }}</td>
+                            <td>{{ \App\Models\Setting::getCurrencySymbol($invoice->shipment->currency ?? null) }} {{ number_format($invoice->amount_paid, 2) }}</td>
+                            <td>{{ \App\Models\Setting::getCurrencySymbol($invoice->shipment->currency ?? null) }} {{ number_format($invoice->balance, 2) }}</td>
                             <td>
                                 @php
                                     $statusColors = [
                                         'draft' => 'secondary',
                                         'sent' => 'info',
                                         'paid' => 'success',
+                                        'partial' => 'warning',
                                         'overdue' => 'danger',
                                         'cancelled' => 'dark'
                                     ];
@@ -202,9 +204,9 @@
 @stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryan Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop

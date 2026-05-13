@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
 use App\Http\Requests\ImportClientsRequest;
-use Illuminate\Http\Request;
+use App\Models\Client;
 use Illuminate\Support\Facades\Validator;
 
 class ClientImportController extends Controller
@@ -29,16 +28,16 @@ class ClientImportController extends Controller
 
         $columns = ['name', 'email', 'phone', 'company', 'address'];
 
-        $callback = function() use ($columns) {
+        $callback = function () use ($columns) {
             $file = fopen('php://output', 'w');
-            
+
             // Write header row
             fputcsv($file, $columns);
-            
+
             // Write sample data rows
             fputcsv($file, ['John Doe', 'john@example.com', '0700123456', 'ABC Company', '123 Main St, Kampala']);
             fputcsv($file, ['Jane Smith', 'jane@example.com', '0700654321', 'XYZ Ltd', '456 Oak Ave, Entebbe']);
-            
+
             fclose($file);
         };
 
@@ -51,7 +50,7 @@ class ClientImportController extends Controller
     public function import(ImportClientsRequest $request)
     {
         $file = $request->file('csv_file');
-        
+
         $imported = 0;
         $skipped = 0;
         $errors = [];
@@ -60,19 +59,19 @@ class ClientImportController extends Controller
         // Open and read CSV file
         if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
             $header = fgetcsv($handle); // Read header row
-            
+
             // Validate header
             $expectedHeaders = ['name', 'email', 'phone', 'company', 'address'];
             if ($header !== $expectedHeaders) {
-                return redirect()->route('clients.import')
-                    ->with('error', 'Invalid CSV format. Please use the provided template. Expected columns: ' . implode(', ', $expectedHeaders));
+                return redirect()->route('admin.clients.import')
+                    ->with('error', 'Invalid CSV format. Please use the provided template. Expected columns: '.implode(', ', $expectedHeaders));
             }
 
             $rowNumber = 1; // Start from 1 (after header)
-            
+
             while (($data = fgetcsv($handle)) !== false) {
                 $rowNumber++;
-                
+
                 // Skip empty rows
                 if (empty(array_filter($data))) {
                     continue;
@@ -89,7 +88,7 @@ class ClientImportController extends Controller
 
                 // Validate row data
                 $validator = Validator::make($clientData, [
-                    'name' => 'required|string|max:255',
+                    'name' => 'required|string|max:255|unique:clients,name',
                     'email' => 'required|email|unique:clients,email',
                     'phone' => 'required|string|max:255',
                     'company' => 'nullable|string|max:255',
@@ -99,12 +98,13 @@ class ClientImportController extends Controller
                 if ($validator->fails()) {
                     $skipped++;
                     $errorMessages = $validator->errors()->all();
-                    $errors[] = "Row {$rowNumber}: " . implode(', ', $errorMessages);
+                    $errors[] = "Row {$rowNumber}: ".implode(', ', $errorMessages);
                     $skippedRows[] = [
                         'row' => $rowNumber,
                         'data' => $clientData,
                         'errors' => $errorMessages,
                     ];
+
                     continue;
                 }
 
@@ -114,7 +114,7 @@ class ClientImportController extends Controller
                     $imported++;
                 } catch (\Exception $e) {
                     $skipped++;
-                    $errors[] = "Row {$rowNumber}: Failed to create client - " . $e->getMessage();
+                    $errors[] = "Row {$rowNumber}: Failed to create client - ".$e->getMessage();
                     $skippedRows[] = [
                         'row' => $rowNumber,
                         'data' => $clientData,

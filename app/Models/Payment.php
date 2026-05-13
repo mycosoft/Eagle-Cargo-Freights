@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Invoice;
-use App\Models\User;
 
 class Payment extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'invoice_id',
@@ -48,19 +47,19 @@ class Payment extends Model
         $month = date('m');
         $day = date('d');
         $prefix = "RCP-{$year}{$month}{$day}-";
-        
-        $lastReceipt = self::where('receipt_number', 'like', $prefix . '%')
+
+        $lastReceipt = self::where('receipt_number', 'like', $prefix.'%')
             ->orderBy('receipt_number', 'desc')
             ->first();
-        
+
         if ($lastReceipt) {
             $lastNumber = intval(substr($lastReceipt->receipt_number, -4));
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
         }
-        
-        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+
+        return $prefix.str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
     // Event: Update invoice status after payment is created

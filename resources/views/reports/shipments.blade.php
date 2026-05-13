@@ -131,7 +131,7 @@
                 <tbody>
                     @forelse($shipments as $shipment)
                         <tr>
-                            <td><a href="{{ url('shipments/' . $shipment->id) }}">{{ $shipment->tracking_number }}</a></td>
+                            <td><a href="{{ url('admin/shipments/' . $shipment->id) }}">{{ $shipment->tracking_number }}</a></td>
                             <td>{{ $shipment->client->name }}</td>
                             <td>{{ $shipment->origin }}</td>
                             <td>{{ $shipment->destination }}</td>
@@ -152,10 +152,10 @@
 
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
 

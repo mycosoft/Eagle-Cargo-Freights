@@ -35,6 +35,7 @@ class InvoiceItem extends Model
     public function calculateAmount()
     {
         $this->amount = $this->quantity * $this->rate;
+
         return $this->amount;
     }
 }

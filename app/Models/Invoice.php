@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'shipment_id',
@@ -74,31 +75,32 @@ class Invoice extends Model
         $year = date('Y');
         $month = date('m');
         $prefix = "INV-{$year}{$month}-";
-        
-        $lastInvoice = self::where('invoice_number', 'like', $prefix . '%')
+
+        $lastInvoice = self::where('invoice_number', 'like', $prefix.'%')
             ->orderBy('invoice_number', 'desc')
             ->first();
-        
+
         if ($lastInvoice) {
             $lastNumber = intval(substr($lastInvoice->invoice_number, -4));
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
         }
-        
-        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+
+        return $prefix.str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
     public function calculateTotal()
     {
         $this->total = $this->subtotal + $this->tax - $this->discount;
+
         return $this->total;
     }
 
     public function updateStatus()
     {
         $totalPaid = $this->payments()->sum('amount');
-        
+
         if ($totalPaid >= $this->total) {
             $this->status = 'paid';
         } elseif ($this->due_date && $this->due_date->isPast() && $totalPaid < $this->total) {
@@ -106,7 +108,7 @@ class Invoice extends Model
         } elseif ($totalPaid > 0) {
             $this->status = 'partial';
         }
-        
+
         $this->save();
     }
 

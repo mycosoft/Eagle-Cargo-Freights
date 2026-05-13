@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Models\Client;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -19,11 +19,11 @@ class ClientController extends Controller
         // Search functionality
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('company', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('company', 'like', "%{$search}%");
             });
         }
 
@@ -47,7 +47,7 @@ class ClientController extends Controller
     {
         Client::create($request->validated());
 
-        return redirect()->route('clients.index')
+        return redirect()->route('admin.clients.index')
             ->with('success', 'Client created successfully.');
     }
 
@@ -56,8 +56,24 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        $client->load('shipments');
-        return view('clients.show', compact('client'));
+        $client->load([
+            'shipments.invoice.payments',
+            'shipments.invoice.items',
+        ]);
+
+        // Build financial summary
+        $totalInvoiced = 0;
+        $totalPaid = 0;
+        $totalOutstanding = 0;
+        foreach ($client->shipments as $shipment) {
+            if ($shipment->invoice) {
+                $totalInvoiced += $shipment->invoice->total;
+                $totalPaid += $shipment->invoice->amount_paid;
+                $totalOutstanding += $shipment->invoice->balance;
+            }
+        }
+
+        return view('clients.show', compact('client', 'totalInvoiced', 'totalPaid', 'totalOutstanding'));
     }
 
     /**
@@ -75,7 +91,7 @@ class ClientController extends Controller
     {
         $client->update($request->validated());
 
-        return redirect()->route('clients.index')
+        return redirect()->route('admin.clients.index')
             ->with('success', 'Client updated successfully.');
     }
 
@@ -86,7 +102,30 @@ class ClientController extends Controller
     {
         $client->delete();
 
-        return redirect()->route('clients.index')
+        return redirect()->route('admin.clients.index')
             ->with('success', 'Client deleted successfully.');
+    }
+
+    /**
+     * Search clients via AJAX for autocomplete
+     */
+    public function search(Request $request)
+    {
+        $search = $request->get('q', '');
+
+        $query = Client::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('company', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->limit(20)->get(['id', 'name', 'email', 'phone', 'company']);
+
+        return response()->json($clients);
     }
 }

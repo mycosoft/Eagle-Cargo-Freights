@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->integer('order')->default(0);
             $table->timestamps();
-            
+
             $table->index('invoice_id');
         });
     }

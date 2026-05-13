@@ -71,73 +71,35 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <!-- Quick Stats -->
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Quick Statistics</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-primary"><i class="fas fa-dollar-sign"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Total Revenue</span>
-                                    @php
-                                        $totalRevenue = \App\Models\Payment::sum('amount');
-                                    @endphp
-                                    <span class="info-box-number">UGX {{ number_format($totalRevenue, 0) }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-success"><i class="fas fa-calendar"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">This Month</span>
-                                    @php
-                                        $monthlyRevenue = \App\Models\Payment::whereYear('payment_date', now()->year)
-                                            ->whereMonth('payment_date', now()->month)
-                                            ->sum('amount');
-                                    @endphp
-                                    <span class="info-box-number">UGX {{ number_format($monthlyRevenue, 0) }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-warning"><i class="fas fa-exclamation-triangle"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Outstanding</span>
-                                    @php
-                                        $outstanding = \App\Models\Invoice::where('status', '!=', 'paid')
-                                            ->where('status', '!=', 'cancelled')
-                                            ->sum(\DB::raw('total - (SELECT COALESCE(SUM(amount), 0) FROM payments WHERE payments.invoice_id = invoices.id)'));
-                                    @endphp
-                                    <span class="info-box-number">UGX {{ number_format($outstanding, 0) }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 col-sm-6">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-info"><i class="fas fa-file-invoice"></i></span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Total Invoices</span>
-                                    @php
-                                        $totalInvoices = \App\Models\Invoice::count();
-                                    @endphp
-                                    <span class="info-box-number">{{ $totalInvoices }}</span>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Batch Revenue Report -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-secondary card-outline">
+                <div class="card-body box-profile">
+                    <div class="text-center">
+                        <i class="fas fa-boxes fa-4x text-secondary mb-3"></i>
                     </div>
+                    <h3 class="profile-username text-center">Batch Revenue</h3>
+                    <p class="text-muted text-center">Revenue collected per shipment batch</p>
+                    <a href="{{ route('admin.reports.batch-revenue') }}" class="btn btn-secondary btn-block">
+                        <i class="fas fa-eye"></i> View Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Report -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-danger card-outline">
+                <div class="card-body box-profile">
+                    <div class="text-center">
+                        <i class="fas fa-receipt fa-4x text-danger mb-3"></i>
+                    </div>
+                    <h3 class="profile-username text-center">Expenses</h3>
+                    <p class="text-muted text-center">Track business expenses by category</p>
+                    <a href="{{ route('admin.reports.expenses') }}" class="btn btn-danger btn-block">
+                        <i class="fas fa-eye"></i> View Report
+                    </a>
                 </div>
             </div>
         </div>
@@ -145,9 +107,9 @@
 @stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop

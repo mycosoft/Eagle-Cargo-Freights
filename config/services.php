@@ -38,7 +38,7 @@ return [
     'whatsapp' => [
         // Provider selection: 'meta' (official Cloud API) or 'local' (go-whatsapp-web-multidevice)
         'provider' => env('WHATSAPP_PROVIDER', 'meta'),
-        
+
         // Meta WhatsApp Cloud API configuration
         'meta' => [
             'access_token' => env('WHATSAPP_ACCESS_TOKEN'),
@@ -46,7 +46,7 @@ return [
             'business_account_id' => env('WHATSAPP_BUSINESS_ACCOUNT_ID'),
             'api_version' => 'v21.0',
         ],
-        
+
         // Local go-whatsapp-web-multidevice API configuration
         'local' => [
             'api_url' => env('WHATSAPP_LOCAL_API_URL', 'http://147.93.85.45:3000'),

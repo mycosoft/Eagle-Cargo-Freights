@@ -61,7 +61,7 @@
                         <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total Outstanding Balance</span>
-                            <span class="info-box-number">UGX {{ number_format($totalOutstanding, 0) }}</span>
+                            <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol() }} {{ number_format($totalOutstanding, 0) }}</span>
                         </div>
                     </div>
                 </div>
@@ -88,11 +88,11 @@
                                 <td>{{ $invoice->invoice_number }}</td>
                                 <td>{{ $invoice->issue_date->format('d M Y') }}</td>
                                 <td>{{ $invoice->shipment->client->name ?? 'N/A' }}</td>
-                                <td>UGX {{ number_format($invoice->total, 0) }}</td>
-                                <td>UGX {{ number_format($invoice->amount_paid, 0) }}</td>
-                                <td>
-                                    <strong class="text-danger">UGX {{ number_format($invoice->balance, 0) }}</strong>
-                                </td>
+                                 <td>{{ \App\Models\Setting::getCurrencySymbol($invoice->shipment->currency ?? null) }} {{ number_format($invoice->total, 0) }}</td>
+                                 <td>{{ \App\Models\Setting::getCurrencySymbol($invoice->shipment->currency ?? null) }} {{ number_format($invoice->amount_paid, 0) }}</td>
+                                 <td>
+                                     <strong class="text-danger">{{ \App\Models\Setting::getCurrencySymbol($invoice->shipment->currency ?? null) }} {{ number_format($invoice->balance, 0) }}</strong>
+                                 </td>
                                 <td>
                                     @if($invoice->status == 'unpaid')
                                         <span class="badge badge-danger">Unpaid</span>
@@ -128,9 +128,9 @@
 @stop
 
 @section('footer')
-    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Bryanz Logistics</a>.</strong>
+    <strong>Copyright &copy; {{ date('Y') }} <a href="#">Eagle Cargo Freights</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block">
-        <b>Support Call</b> 0750501151
+        <b>Support Call</b> +256 200 991 118
     </div>
 @stop
