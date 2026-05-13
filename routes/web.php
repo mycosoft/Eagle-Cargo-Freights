@@ -84,8 +84,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     });
 
     // ─── Air Cargo ───────────────────────────────────────────
-    Route::middleware(['permission:view air cargo'])->group(function () {
+    Route::middleware(['permission:view air cargo dashboard'])->group(function () {
         Route::get('air-cargo/dashboard', [App\Http\Controllers\AirCargoController::class, 'dashboard'])->name('air-cargo.dashboard');
+    });
+    Route::middleware(['permission:view air cargo'])->group(function () {
         Route::get('air-cargo', [App\Http\Controllers\AirCargoController::class, 'index'])->name('air-cargo.index');
         Route::get('air-cargo/{air_cargo}', [App\Http\Controllers\AirCargoController::class, 'show'])->name('air-cargo.show');
     });
@@ -102,8 +104,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     });
 
     // ─── Sea Cargo ───────────────────────────────────────────
-    Route::middleware(['permission:view sea cargo'])->group(function () {
+    Route::middleware(['permission:view sea cargo dashboard'])->group(function () {
         Route::get('sea-cargo/dashboard', [App\Http\Controllers\SeaCargoController::class, 'dashboard'])->name('sea-cargo.dashboard');
+    });
+    Route::middleware(['permission:view sea cargo'])->group(function () {
         Route::get('sea-cargo', [App\Http\Controllers\SeaCargoController::class, 'index'])->name('sea-cargo.index');
         Route::get('sea-cargo/{sea_cargo}', [App\Http\Controllers\SeaCargoController::class, 'show'])->name('sea-cargo.show');
     });

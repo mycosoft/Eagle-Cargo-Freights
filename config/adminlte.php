@@ -361,6 +361,7 @@ return [
                     'text' => 'Dashboard',
                     'url' => 'admin/air-cargo/dashboard',
                     'icon' => 'fas fa-fw fa-tachometer-alt',
+                    'can' => 'view air cargo dashboard',
                 ],
                 [
                     'text' => 'All Air Shipments',
@@ -384,6 +385,7 @@ return [
                     'text' => 'Dashboard',
                     'url' => 'admin/sea-cargo/dashboard',
                     'icon' => 'fas fa-fw fa-tachometer-alt',
+                    'can' => 'view sea cargo dashboard',
                 ],
                 [
                     'text' => 'All Sea Shipments',

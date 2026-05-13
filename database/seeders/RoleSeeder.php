@@ -29,12 +29,14 @@ class RoleSeeder extends Seeder
 
             // Air Cargo
             'view air cargo',
+            'view air cargo dashboard',
             'create air cargo',
             'edit air cargo',
             'delete air cargo',
 
             // Sea Cargo
             'view sea cargo',
+            'view sea cargo dashboard',
             'create sea cargo',
             'edit sea cargo',
             'delete sea cargo',
@@ -129,10 +131,12 @@ class RoleSeeder extends Seeder
             'edit shipments',
 
             'view air cargo',
+            'view air cargo dashboard',
             'create air cargo',
             'edit air cargo',
 
             'view sea cargo',
+            'view sea cargo dashboard',
             'create sea cargo',
             'edit sea cargo',
 
