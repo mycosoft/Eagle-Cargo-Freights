@@ -62,41 +62,42 @@
         </div>
     </div>
 
+    <!-- Revenue Info Boxes -->
     <div class="row">
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($revenueUgx, 0) }}</h3>
-                    <p>Revenue (UGX)</p>
+            <div class="info-box">
+                <span class="info-box-icon bg-success"><i class="fas fa-money-bill-wave"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Revenue (UGX)</span>
+                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($revenueUgx, 0) }}</span>
                 </div>
-                <div class="icon"><i class="fas fa-money-bill-wave"></i></div>
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>${{ number_format($revenueUsd, 0) }}</h3>
-                    <p>Revenue (USD)</p>
+            <div class="info-box">
+                <span class="info-box-icon bg-info"><i class="fas fa-dollar-sign"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Revenue (USD)</span>
+                    <span class="info-box-number">${{ number_format($revenueUsd, 0) }}</span>
                 </div>
-                <div class="icon"><i class="fas fa-dollar-sign"></i></div>
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($totalInvoiced, 0) }}</h3>
-                    <p>Total Invoiced</p>
+            <div class="info-box">
+                <span class="info-box-icon bg-warning"><i class="fas fa-file-invoice"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Invoiced</span>
+                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($totalInvoiced, 0) }}</span>
                 </div>
-                <div class="icon"><i class="fas fa-file-invoice"></i></div>
             </div>
         </div>
         <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($outstanding, 0) }}</h3>
-                    <p>Outstanding</p>
+            <div class="info-box">
+                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation-triangle"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Outstanding</span>
+                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($outstanding, 0) }}</span>
                 </div>
-                <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
             </div>
         </div>
     </div>
