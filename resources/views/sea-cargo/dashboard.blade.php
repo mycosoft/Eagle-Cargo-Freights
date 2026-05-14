@@ -17,8 +17,48 @@
         </div>
     </div>
 
+    <!-- Stats Cards -->
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-lg-3 col-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-success"><i class="fas fa-money-bill-wave"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Revenue (UGX)</span>
+                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($revenueUgx, 0) }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-info"><i class="fas fa-dollar-sign"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Revenue (USD)</span>
+                    <span class="info-box-number">${{ number_format($revenueUsd, 0) }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-warning"><i class="fas fa-file-invoice"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Invoiced</span>
+                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($totalInvoiced, 0) }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="info-box">
+                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation-triangle"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Outstanding</span>
+                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($outstanding, 0) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-chart-pie"></i> Shipments by Status</h3>
