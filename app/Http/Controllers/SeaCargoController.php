@@ -58,10 +58,21 @@ class SeaCargoController extends Controller
             ->limit(5)
             ->get();
 
+        $totalRevenue = Payment::whereHas('invoice.shipment', function ($q) {
+            $q->where('shipment_type', 'sea');
+        })->sum('amount');
+
+        $totalCost = Shipment::where('shipment_type', 'sea')
+            ->get()
+            ->sum(function ($s) { return $s->cost_price ?? 0; });
+
+        $totalProfit = $totalRevenue - $totalCost;
+
         return view('sea-cargo.dashboard', compact(
             'totalShipments', 'inTransit', 'pending', 'delivered', 'onHold', 'thisMonth',
             'revenueUgx', 'revenueUsd', 'totalInvoiced', 'outstanding',
-            'monthlyData', 'recentShipments', 'recentPayments'
+            'monthlyData', 'recentShipments', 'recentPayments',
+            'totalRevenue', 'totalCost', 'totalProfit'
         ));
     }
 

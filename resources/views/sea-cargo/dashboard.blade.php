@@ -16,9 +16,29 @@
             </a>
         </div>
     </div>
-@stop
 
-@section('content')
+    <!-- Total Profit Highlight -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card bg-gradient-{{ $totalProfit >= 0 ? 'success' : 'danger' }}">
+                <div class="card-body text-center py-4">
+                    <h4 class="text-white mb-0">
+                        <i class="fas fa-coins mr-2"></i>Cumulative Profit: 
+                        ${{ number_format($totalProfit, 0) }}
+                        @if($totalRevenue > 0)
+                            <small>({{ round(($totalProfit / $totalRevenue) * 100, 1) }}% margin)</small>
+                        @endif
+                    </h4>
+                    <div class="row mt-3">
+                        <div class="col-4"><small class="text-white-50">Revenue: ${{ number_format($totalRevenue, 0) }}</small></div>
+                        <div class="col-4"><small class="text-white-50">Costs: ${{ number_format($totalCost, 0) }}</small></div>
+                        <div class="col-4"><small class="text-white-50">Profit: ${{ number_format($totalProfit, 0) }}</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-3 col-6">
             <div class="small-box bg-info">
@@ -58,46 +78,6 @@
                 </div>
                 <div class="icon"><i class="fas fa-calendar-alt"></i></div>
                 <a href="{{ route('admin.sea-cargo.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Revenue Info Boxes -->
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <div class="info-box">
-                <span class="info-box-icon bg-success"><i class="fas fa-money-bill-wave"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Revenue (UGX)</span>
-                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($revenueUgx, 0) }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-6">
-            <div class="info-box">
-                <span class="info-box-icon bg-info"><i class="fas fa-dollar-sign"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Revenue (USD)</span>
-                    <span class="info-box-number">${{ number_format($revenueUsd, 0) }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-6">
-            <div class="info-box">
-                <span class="info-box-icon bg-warning"><i class="fas fa-file-invoice"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Total Invoiced</span>
-                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($totalInvoiced, 0) }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-6">
-            <div class="info-box">
-                <span class="info-box-icon bg-danger"><i class="fas fa-exclamation-triangle"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Outstanding</span>
-                    <span class="info-box-number">{{ \App\Models\Setting::getCurrencySymbol(null) }} {{ number_format($outstanding, 0) }}</span>
-                </div>
             </div>
         </div>
     </div>
