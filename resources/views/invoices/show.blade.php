@@ -167,6 +167,8 @@
                                 <th>Receipt #</th>
                                 <th>Date</th>
                                 <th>Amount</th>
+                                <th>Exchange Rate</th>
+                                <th>UGX Equivalent</th>
                                 <th>Method</th>
                                 <th>Reference</th>
                                 <th>Recorded By</th>
@@ -179,6 +181,8 @@
                                 <td><strong>{{ $payment->receipt_number }}</strong></td>
                                 <td>{{ $payment->payment_date->format('M d, Y') }}</td>
                                 <td>{{ $currency }} {{ number_format($payment->amount, 2) }}</td>
+                                <td>{{ $payment->exchange_rate ? number_format($payment->exchange_rate, 2) : 'N/A' }}</td>
+                                <td>{{ $payment->exchange_rate ? 'UGX ' . number_format($payment->amount * $payment->exchange_rate, 0) : 'N/A' }}</td>
                                 <td>{{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}</td>
                                 <td>{{ $payment->reference_number ?? 'N/A' }}</td>
                                 <td>{{ $payment->recorder ? $payment->recorder->name : 'System' }}</td>
@@ -337,6 +341,15 @@
                                       id="notes" name="notes" rows="3" 
                                       placeholder="Additional notes about this payment...">{{ old('notes') }}</textarea>
                             @error('notes')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label for="exchange_rate">Exchange Rate (UGX/USD)</label>
+                            <input type="number" step="0.01" class="form-control @error('exchange_rate') is-invalid @enderror" 
+                                   id="exchange_rate" name="exchange_rate" 
+                                   value="{{ old('exchange_rate', '3743.23') }}" placeholder="e.g., 3700">
+                            @error('exchange_rate')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
