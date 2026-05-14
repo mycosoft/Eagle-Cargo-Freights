@@ -15,7 +15,6 @@ class AirCargoController extends Controller
      */
     public function dashboard()
     {
-    {
         $totalShipments = Shipment::where('shipment_type', 'air')->count();
         $inTransit = Shipment::where('shipment_type', 'air')->whereIn('current_status', ['In Transit', 'Picked Up'])->count();
         $pending = Shipment::where('shipment_type', 'air')->where('current_status', 'Pending')->count();
