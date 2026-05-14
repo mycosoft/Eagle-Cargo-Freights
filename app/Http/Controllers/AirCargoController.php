@@ -15,6 +15,7 @@ class AirCargoController extends Controller
      */
     public function dashboard()
     {
+    {
         $totalShipments = Shipment::where('shipment_type', 'air')->count();
         $inTransit = Shipment::where('shipment_type', 'air')->whereIn('current_status', ['In Transit', 'Picked Up'])->count();
         $pending = Shipment::where('shipment_type', 'air')->where('current_status', 'Pending')->count();
@@ -77,6 +78,22 @@ class AirCargoController extends Controller
             'monthlyData', 'recentShipments', 'recentPayments',
             'totalRevenue', 'totalCost', 'totalProfit'
         ));
+    }
+
+    /**
+     * Air Cargo Invoices
+     */
+    public function invoices()
+    {
+        $invoices = Invoice::whereHas('shipment', function ($q) {
+            $q->where('shipment_type', 'air');
+        })->with(['shipment.client', 'payments'])->latest()->paginate(20);
+
+        $totalInvoiced = $invoices->sum('total');
+        $totalPaid = $invoices->sum(function ($i) { return $i->amount_paid; });
+        $totalBalance = $invoices->sum(function ($i) { return $i->balance; });
+
+        return view('air-cargo.invoices', compact('invoices', 'totalInvoiced', 'totalPaid', 'totalBalance'));
     }
 
     /**

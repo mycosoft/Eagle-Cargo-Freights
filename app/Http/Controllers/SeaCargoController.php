@@ -66,6 +66,22 @@ class SeaCargoController extends Controller
     }
 
     /**
+     * Sea Cargo Invoices
+     */
+    public function invoices()
+    {
+        $invoices = Invoice::whereHas('shipment', function ($q) {
+            $q->where('shipment_type', 'sea');
+        })->with(['shipment.client', 'payments'])->latest()->paginate(20);
+
+        $totalInvoiced = $invoices->sum('total');
+        $totalPaid = $invoices->sum(function ($i) { return $i->amount_paid; });
+        $totalBalance = $invoices->sum(function ($i) { return $i->balance; });
+
+        return view('sea-cargo.invoices', compact('invoices', 'totalInvoiced', 'totalPaid', 'totalBalance'));
+    }
+
+    /**
      * Display a listing of sea cargo shipments
      */
     public function index(Request $request)

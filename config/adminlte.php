@@ -364,6 +364,12 @@ return [
                     'can' => 'view air cargo dashboard',
                 ],
                 [
+                    'text' => 'Air Cargo Invoices',
+                    'url' => 'admin/air-cargo/invoices',
+                    'icon' => 'fas fa-fw fa-file-invoice-dollar',
+                    'can' => 'view air cargo dashboard',
+                ],
+                [
                     'text' => 'All Air Shipments',
                     'url' => 'admin/air-cargo',
                     'icon' => 'fas fa-fw fa-list',
@@ -385,6 +391,12 @@ return [
                     'text' => 'Dashboard',
                     'url' => 'admin/sea-cargo/dashboard',
                     'icon' => 'fas fa-fw fa-tachometer-alt',
+                    'can' => 'view sea cargo dashboard',
+                ],
+                [
+                    'text' => 'Sea Cargo Invoices',
+                    'url' => 'admin/sea-cargo/invoices',
+                    'icon' => 'fas fa-fw fa-file-invoice-dollar',
                     'can' => 'view sea cargo dashboard',
                 ],
                 [

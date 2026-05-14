@@ -87,6 +87,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Static routes must come BEFORE wildcard {air_cargo}
     Route::middleware(['permission:view air cargo dashboard'])->group(function () {
         Route::get('air-cargo/dashboard', [App\Http\Controllers\AirCargoController::class, 'dashboard'])->name('air-cargo.dashboard');
+        Route::get('air-cargo/invoices', [App\Http\Controllers\AirCargoController::class, 'invoices'])->name('air-cargo.invoices');
     });
     Route::middleware(['permission:create air cargo'])->group(function () {
         Route::get('air-cargo/create', [App\Http\Controllers\AirCargoController::class, 'create'])->name('air-cargo.create');
@@ -108,6 +109,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Static routes must come BEFORE wildcard {sea_cargo}
     Route::middleware(['permission:view sea cargo dashboard'])->group(function () {
         Route::get('sea-cargo/dashboard', [App\Http\Controllers\SeaCargoController::class, 'dashboard'])->name('sea-cargo.dashboard');
+        Route::get('sea-cargo/invoices', [App\Http\Controllers\SeaCargoController::class, 'invoices'])->name('sea-cargo.invoices');
     });
     Route::middleware(['permission:create sea cargo'])->group(function () {
         Route::get('sea-cargo/create', [App\Http\Controllers\SeaCargoController::class, 'create'])->name('sea-cargo.create');
