@@ -52,7 +52,9 @@ class ChatController extends Controller
 
     public function show(string $uuid)
     {
-        $conversation = Conversation::where('uuid', $uuid)->firstOrFail();
+        $conversation = Conversation::where('uuid', $uuid)
+            ->with('participants')
+            ->firstOrFail();
 
         if (!$conversation->isParticipant(auth()->user())) {
             abort(403);

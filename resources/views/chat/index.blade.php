@@ -22,7 +22,11 @@
                         @forelse($conversations as $conv)
                             <a href="{{ route('chat.show', $conv) }}" class="conversation-item p-3 border-bottom d-block text-dark">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <strong>{{ $conv->getOtherParticipant(auth()->user())?->name ?? 'Unknown' }}</strong>
+                                    @if($conv->type === 'group')
+                                        <strong><i class="fas fa-users mr-1 text-info"></i>{{ $conv->subject ?? 'Group' }}</strong>
+                                    @else
+                                        <strong>{{ $conv->getOtherParticipant(auth()->user())?->name ?? 'Unknown' }}</strong>
+                                    @endif
                                     @if($conv->getUnreadCountForUser(auth()->user()) > 0)
                                         <span class="badge badge-primary">{{ $conv->getUnreadCountForUser(auth()->user()) }}</span>
                                     @endif

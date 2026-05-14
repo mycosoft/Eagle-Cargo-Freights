@@ -8,10 +8,12 @@
             <h1>
                 @if($conversation->type === 'direct')
                     <i class="fas fa-user mr-2"></i>
+                    {{ $conversation->getOtherParticipant(auth()->user())?->name ?? 'Conversation' }}
                 @else
                     <i class="fas fa-users mr-2"></i>
+                    {{ $conversation->subject ?? 'Group Chat' }}
+                    <small class="text-muted">({{ $conversation->participants->count() }} members)</small>
                 @endif
-                {{ $conversation->getOtherParticipant(auth()->user())?->name ?? 'Conversation' }}
             </h1>
         </div>
         <div class="col-sm-6">
