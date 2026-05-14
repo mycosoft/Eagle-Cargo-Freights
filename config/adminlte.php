@@ -463,9 +463,20 @@ return [
         ],
         [
             'text' => 'Reports',
-            'url' => 'admin/reports',
             'icon' => 'fas fa-fw fa-chart-bar',
             'can' => 'view reports',
+            'submenu' => [
+                [
+                    'text' => 'Reports Dashboard',
+                    'url' => 'admin/reports',
+                    'icon' => 'fas fa-fw fa-tachometer-alt',
+                ],
+                [
+                    'text' => 'Profit & Loss',
+                    'url' => 'admin/reports/profit-loss',
+                    'icon' => 'fas fa-fw fa-chart-line',
+                ],
+            ],
         ],
         [
             'text' => 'Messages',

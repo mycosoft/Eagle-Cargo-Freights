@@ -18,6 +18,7 @@ class Payment extends Model
         'payment_method',
         'reference_number',
         'notes',
+        'exchange_rate',
         'recorded_by',
         'receipt_sent_at',
         'receipt_sent_via',
@@ -26,6 +27,7 @@ class Payment extends Model
     protected $casts = [
         'payment_date' => 'date',
         'amount' => 'decimal:2',
+        'exchange_rate' => 'decimal:2',
         'receipt_sent_at' => 'datetime',
     ];
 

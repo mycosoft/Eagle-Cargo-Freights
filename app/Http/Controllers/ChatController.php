@@ -105,6 +105,29 @@ class ChatController extends Controller
         return redirect()->route('chat.show', $conversation);
     }
 
+    public function createGroup(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'user_ids' => 'required|array|min:2',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $conversation = Conversation::create([
+            'uuid' => \Illuminate\Support\Str::uuid(),
+            'type' => 'group',
+            'subject' => $request->name,
+        ]);
+
+        $userIds = $request->user_ids;
+        if (!in_array(auth()->id(), $userIds)) {
+            $userIds[] = auth()->id();
+        }
+        $conversation->participants()->attach($userIds);
+
+        return redirect()->route('chat.show', $conversation);
+    }
+
     public function sendMessage(Request $request, string $uuid)
     {
         $conversation = Conversation::where('uuid', $uuid)->firstOrFail();

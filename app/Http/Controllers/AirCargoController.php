@@ -58,10 +58,24 @@ class AirCargoController extends Controller
             ->limit(5)
             ->get();
 
+        // Cumulative figures
+        $totalRevenue = Payment::whereHas('invoice.shipment', function ($q) {
+            $q->where('shipment_type', 'air');
+        })->with(['invoice.shipment'])
+            ->get()
+            ->sum(function ($p) { return $p->amount; });
+
+        $totalCost = Shipment::where('shipment_type', 'air')
+            ->get()
+            ->sum(function ($s) { return $s->cost_price ?? 0; });
+
+        $totalProfit = $totalRevenue - $totalCost;
+
         return view('air-cargo.dashboard', compact(
             'totalShipments', 'inTransit', 'pending', 'delivered', 'onHold', 'thisMonth',
             'revenueUgx', 'revenueUsd', 'totalInvoiced', 'outstanding',
-            'monthlyData', 'recentShipments', 'recentPayments'
+            'monthlyData', 'recentShipments', 'recentPayments',
+            'totalRevenue', 'totalCost', 'totalProfit'
         ));
     }
 
@@ -150,7 +164,7 @@ class AirCargoController extends Controller
 
         // Calculate total
         if (isset($validated['shipping_cost'])) {
-            $validated['total_amount'] = ($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0);
+            $validated['total_amount'] = ceil(($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0));
         }
 
         $shipment = Shipment::create($validated);
@@ -276,7 +290,7 @@ class AirCargoController extends Controller
 
         // Calculate total
         if (isset($validated['shipping_cost'])) {
-            $validated['total_amount'] = ($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0);
+            $validated['total_amount'] = ceil(($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0));
         }
 
         if (isset($validated['current_status']) && strtolower(trim($validated['current_status'])) === 'picked up') {

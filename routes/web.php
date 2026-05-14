@@ -236,6 +236,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('reports/batch-revenue', [App\Http\Controllers\ReportController::class, 'batchRevenue'])->name('reports.batch-revenue');
         Route::get('reports/payments', [App\Http\Controllers\ReportController::class, 'payments'])->name('reports.payments');
         Route::get('reports/outstanding', [App\Http\Controllers\ReportController::class, 'outstanding'])->name('reports.outstanding');
+        Route::get('reports/profit-loss', [App\Http\Controllers\ReportController::class, 'profitLoss'])->name('reports.profit-loss');
     });
 
     // ─── Batches ─────────────────────────────────────────────
@@ -316,6 +317,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/{conversation:uuid}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('messages');
         Route::post('/{conversation:uuid}/send', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('send');
         Route::post('/{conversation:uuid}/read', [App\Http\Controllers\ChatController::class, 'markAsRead'])->name('read');
+        Route::post('/group/create', [App\Http\Controllers\ChatController::class, 'createGroup'])->name('group.create');
         Route::get('/user/{user}', [App\Http\Controllers\ChatController::class, 'startConversation'])->name('user');
     });
 

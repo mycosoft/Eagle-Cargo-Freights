@@ -71,6 +71,29 @@
                     </div>
                 </div>
             </div>
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-users"></i> Create Group Chat</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('chat.group.create') }}">
+                        @csrf
+                        <div class="form-group">
+                            <label>Group Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter group name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Members</label>
+                            <select name="user_ids[]" class="form-control" multiple required style="height: 150px;">
+                                @foreach(\App\Models\User::where('id', '!=', auth()->id())->get() as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-users"></i> Create Group</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @stop

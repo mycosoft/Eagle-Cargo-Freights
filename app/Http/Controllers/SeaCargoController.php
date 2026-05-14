@@ -154,7 +154,7 @@ class SeaCargoController extends Controller
 
         // Calculate total
         if (isset($validated['shipping_cost'])) {
-            $validated['total_amount'] = ($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0);
+            $validated['total_amount'] = ceil(($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0));
         }
 
         $shipment = Shipment::create($validated);
@@ -284,7 +284,7 @@ class SeaCargoController extends Controller
 
         // Calculate total
         if (isset($validated['shipping_cost'])) {
-            $validated['total_amount'] = ($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0);
+            $validated['total_amount'] = ceil(($validated['shipping_cost'] ?? 0) + ($validated['tax'] ?? 0));
         }
 
         if (isset($validated['current_status']) && strtolower(trim($validated['current_status'])) === 'picked up') {

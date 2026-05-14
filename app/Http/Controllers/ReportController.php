@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Shipment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -152,12 +153,57 @@ class ReportController extends Controller
      */
     public function batchRevenue(Request $request)
     {
-        $query = \App\Models\ShipmentBatch::with(['creator', 'shipments.client']);
+        return view('reports.batch-revenue');
+    }
 
-        // Date filters
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+    /**
+     * Profit & Loss report with date filtering
+     */
+    public function profitLoss(Request $request)
+    {
+        $fromDate = $request->get('from_date', now()->startOfMonth()->format('Y-m-d'));
+        $toDate = $request->get('to_date', now()->format('Y-m-d'));
+        $type = $request->get('type', 'all');
+
+        $query = Shipment::query();
+        if ($type === 'air') $query->where('shipment_type', 'air');
+        elseif ($type === 'sea') $query->where('shipment_type', 'sea');
+
+        // Filter shipments by date range
+        $shipments = $query->whereBetween('created_at', [$fromDate, $toDate . ' 23:59:59'])->get();
+
+        $totalRevenue = 0;
+        $totalCost = 0;
+        $totalProfit = 0;
+        $data = [];
+
+        foreach ($shipments as $s) {
+            $revenue = $s->revenue;
+            $cost = $s->cost_price ?? 0;
+            $profit = $revenue - $cost;
+            $totalRevenue += $revenue;
+            $totalCost += $cost;
+            $totalProfit += $profit;
+
+            $data[] = [
+                'tracking' => $s->tracking_number,
+                'client' => $s->client->name ?? 'N/A',
+                'type' => $s->shipment_type,
+                'revenue' => $revenue,
+                'cost' => $cost,
+                'profit' => $profit,
+                'date' => $s->created_at->format('d M Y'),
+            ];
         }
+
+        $airTotal = $shipments->where('shipment_type', 'air')->count();
+        $seaTotal = $shipments->where('shipment_type', 'sea')->count();
+
+        return view('reports.profit-loss', compact(
+            'data', 'totalRevenue', 'totalCost', 'totalProfit',
+            'fromDate', 'toDate', 'type', 'airTotal', 'seaTotal'
+        ));
+    }
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }

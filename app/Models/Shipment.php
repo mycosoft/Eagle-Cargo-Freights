@@ -39,6 +39,8 @@ class Shipment extends Model
         'special_instructions',
         // Pricing & Billing
         'shipping_cost',
+        'cost_price',
+        'items',
         'insurance_value',
         'tax',
         'discount',
@@ -70,6 +72,8 @@ class Shipment extends Model
         'fragile' => 'boolean',
         'is_international' => 'boolean',
         'shipping_cost' => 'decimal:2',
+        'cost_price' => 'decimal:2',
+        'items' => 'array',
         'insurance_value' => 'decimal:2',
         'tax' => 'decimal:2',
         'discount' => 'decimal:2',
@@ -170,5 +174,40 @@ class Shipment extends Model
         }
 
         return null;
+    }
+
+    /**
+     * Get total costs for this shipment (cost_price from line items)
+     */
+    public function getTotalCostsAttribute()
+    {
+        return $this->cost_price ?? 0;
+    }
+
+    /**
+     * Get revenue for this shipment (sum of payments)
+     */
+    public function getRevenueAttribute()
+    {
+        return Payment::whereHas('invoice', function ($q) {
+            $q->where('shipment_id', $this->id);
+        })->sum('amount');
+    }
+
+    /**
+     * Get profit for this shipment
+     */
+    public function getProfitAttribute()
+    {
+        return $this->revenue - $this->total_costs;
+    }
+
+    /**
+     * Get profit margin percentage
+     */
+    public function getProfitMarginAttribute()
+    {
+        if ($this->revenue <= 0) return 0;
+        return round(($this->profit / $this->revenue) * 100, 1);
     }
 }

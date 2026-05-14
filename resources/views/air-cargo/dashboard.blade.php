@@ -16,9 +16,38 @@
             </a>
         </div>
     </div>
-@stop
 
-@section('content')
+    <!-- Cumulative Profit -->
+    <div class="row">
+        <div class="col-lg-4 col-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-success"><i class="fas fa-chart-line"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Revenue</span>
+                    <span class="info-box-number">${{ number_format($totalRevenue, 0) }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-12">
+            <div class="info-box">
+                <span class="info-box-icon bg-warning"><i class="fas fa-dollar-sign"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Costs</span>
+                    <span class="info-box-number">${{ number_format($totalCost, 0) }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-12">
+            <div class="info-box">
+                <span class="info-box-icon {{ $totalProfit >= 0 ? 'bg-success' : 'bg-danger' }}"><i class="fas fa-coins"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Profit</span>
+                    <span class="info-box-number">${{ number_format($totalProfit, 0) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-3 col-6">
             <div class="small-box bg-info">

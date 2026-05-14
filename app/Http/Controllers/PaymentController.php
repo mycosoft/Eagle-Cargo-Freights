@@ -21,6 +21,7 @@ class PaymentController extends Controller
             'payment_method' => 'required|in:cash,card,bank_transfer,mobile_money',
             'reference_number' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
+            'exchange_rate' => 'nullable|numeric|min:0.01',
         ]);
 
         $validated['invoice_id'] = $invoice->id;

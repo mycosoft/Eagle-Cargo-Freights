@@ -94,6 +94,9 @@ class Invoice extends Model
     {
         $this->total = $this->subtotal + $this->tax - $this->discount;
 
+        // Round up to nearest whole number (ceil)
+        $this->total = ceil($this->total);
+
         return $this->total;
     }
 
